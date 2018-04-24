@@ -27,8 +27,8 @@ public class UnitsManager : MonoBehaviour
 
 	public void createUnitsByRowColumn (int row, int column)
 	{
-//		allUnitsOnBoard = new Unit[row * column];
-//		tempUnitIndex = 0;
+		allUnitsOnBoard = new Unit[row * column];
+		tempUnitIndex = 0;
 		unitsTable = new Unit[row, column];
 
 		for (int r = 0; r < row; r++) {
@@ -40,11 +40,12 @@ public class UnitsManager : MonoBehaviour
 				tempObj.transform.parent = unitsHolder;
 				tempObj.transform.position = new Vector3 (c, -r, tempObj.transform.position.z);
 
-//				allUnitsOnBoard [tempUnitIndex] = tempUnit;
-//				tempUnitIndex++;
+				allUnitsOnBoard [tempUnitIndex] = tempUnit;
+				tempUnitIndex++;
 				unitsTable [r, c] = tempUnit;
 			}
 		}
+		tempUnitIndex = 0;
 	}
 
 	public void repositionUnitsHolder (float x, float y, float z)
@@ -64,8 +65,8 @@ public class UnitsManager : MonoBehaviour
 		}
 
 //		foreach (var u in unitsTable) {
-////			Debug.Log (u.TotalConnectedUnits);
-//			u.updateCountText (u.TotalConnectedUnits);
+////			Debug.Log (u.CurrentRow + ", " + u.CurrentColumn);
+////			u.updateCountText (u.TotalConnectedUnits);
 //		}
 
 
@@ -74,13 +75,21 @@ public class UnitsManager : MonoBehaviour
 //		}
 	}
 
+	void stepCheck ()
+	{
+		checkConnectionsToRightAndBottom (allUnitsOnBoard [tempUnitIndex]);
+		tempUnitIndex++;
+	}
+
 	void checkConnectionsToRightAndBottom (Unit u)
 	{
+		tempConnectedUnitsGroup = new List<Unit> ();
+//		Debug.Log (u.TotalConnectedUnits);
 		if (u.TotalConnectedUnits == 1) {
-			tempConnectedUnitsGroup.Clear ();
-			tempConnectedUnitsGroup.Add (u);
+//			tempConnectedUnitsGroup.Add (u);
+			tryAddToGroup (tempConnectedUnitsGroup, u);
 		} else {
-			tempConnectedUnitsGroup = u.BelongingGroup;
+			tempConnectedUnitsGroup = joinSecondGroupToFirstGroup (tempConnectedUnitsGroup, u.BelongingGroup);
 		}
 
 		var connectedUnitRight = connectedUnitTowards (u, new Vector2 (1, 0));
@@ -88,30 +97,47 @@ public class UnitsManager : MonoBehaviour
 		if (connectedUnitRight || connectedUnitbottom) {
 			if (connectedUnitRight) {
 				if (connectedUnitRight.TotalConnectedUnits == 1) {
-					tempConnectedUnitsGroup.Add (connectedUnitRight);
+//					tempConnectedUnitsGroup.Add (connectedUnitRight);
+					tryAddToGroup (tempConnectedUnitsGroup, connectedUnitRight);
 				} else {
-//					foreach (var tempU in connectedUnitRight.BelongingGroup) {
-//						tempConnectedUnitsGroup.Add (tempU);
-//					}
+					tempConnectedUnitsGroup = joinSecondGroupToFirstGroup (tempConnectedUnitsGroup, connectedUnitRight.BelongingGroup);
 //					for (int i = 0; i < connectedUnitRight.BelongingGroup.Count; i++) {
 //						tempConnectedUnitsGroup.Add (connectedUnitRight.BelongingGroup [i]);
 //					}
-					tempConnectedUnitsGroup.Add (connectedUnitRight);
+//					tempConnectedUnitsGroup.Add (connectedUnitRight);
 				}
 
 			}
 			if (connectedUnitbottom) {
-				tempConnectedUnitsGroup.Add (connectedUnitbottom);
+				tryAddToGroup (tempConnectedUnitsGroup, connectedUnitbottom);
 			}
 
 			foreach (var unit in tempConnectedUnitsGroup) {
 				unit.TotalConnectedUnits = tempConnectedUnitsGroup.Count;
 				unit.BelongingGroup = tempConnectedUnitsGroup;
-				unit.updateCountText (u.TotalConnectedUnits);
+				unit.updateCountText ();
 			}
 
 		}
 
+	}
+
+	List<Unit> joinSecondGroupToFirstGroup (List<Unit> g1, List<Unit> g2)
+	{
+		Unit[] tempGroup = g2.ToArray ();
+
+		foreach (var tempU in tempGroup) {
+//			g1.Add (tempU);
+			tryAddToGroup (g1, tempU);
+		}
+		return g1;
+	}
+
+	void tryAddToGroup (List<Unit> group, Unit u)
+	{
+		if (!group.Contains (u)) {
+			group.Add (u);
+		}
 	}
 
 	Unit connectedUnitTowards (Unit u1, Vector2 direction)
@@ -144,7 +170,15 @@ public class UnitsManager : MonoBehaviour
 			return false;
 		}
 	}
-		
+
+
+	//	void OnGUI ()
+	//	{
+	//		if (GUI.Button (new Rect (0, 0, 100, 35), "skip")) {
+	//			stepCheck ();
+	//		}
+	//
+	//	}
 
 
 

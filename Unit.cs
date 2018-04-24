@@ -58,9 +58,9 @@ public class Unit : MonoBehaviour
 //		tempUnitSprite.transform.parent = transform;
 	}
 
-	public void updateCountText (int t)
+	public void updateCountText ()
 	{
-		textObj.GetComponent<TextMesh> ().text = t.ToString ();
+		textObj.GetComponent<TextMesh> ().text = TotalConnectedUnits.ToString ();
 	}
 
 	public void upgrade (int levels)
