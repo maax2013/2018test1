@@ -21,18 +21,19 @@ public class MainGame : MonoBehaviour
 		initUnits ();
 	}
 
-	void initUnits ()
-	{
-		unitsManager = GetComponent<UnitsManager> ();
-		unitsManager.createUnitsByRowColumn (boardRows, boardColumns);
-		unitsManager.repositionUnitsHolder (-boardOffX, boardOffY, 0f);
-	}
-
 	void initBoardBG ()
 	{
 		boardBgCtr = GetComponent<BoardBg> ();
 		boardBgCtr.createBoardTilesByRowColumn (boardRows, boardColumns);
 		boardBgCtr.repositionBoard (-boardOffX, boardOffY, 1f);
+	}
+
+	void initUnits ()
+	{
+		unitsManager = GetComponent<UnitsManager> ();
+		unitsManager.createUnitsByRowColumn (boardRows, boardColumns);
+		unitsManager.repositionUnitsHolder (-boardOffX, boardOffY, 0f);
+		unitsManager.groupConnectedUnitsOnBoard ();
 	}
 	
 	// Update is called once per frame

@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BoardBg : MonoBehaviour
 {
-	[SerializeField] GameObject cellBg1Prefab;
-	[SerializeField] GameObject cellBg2Prefab;
+	[SerializeField] GameObject cellBg;
+	[SerializeField] Sprite[] sprites;
 
 	[SerializeField] Transform tileBgHolder;
 
@@ -21,10 +21,11 @@ public class BoardBg : MonoBehaviour
 	{
 		for (int r = 0; r < row; r++) {
 			for (int c = 0; c < column; c++) {
+				tempTileBG = Instantiate (cellBg, new Vector3 (c, -r, 0), Quaternion.identity) as GameObject;
 				if ((r % 2 == 0 && c % 2 == 0) || (r % 2 != 0 && c % 2 != 0)) {
-					tempTileBG = Instantiate (cellBg1Prefab, new Vector3 (c, -r, 0), Quaternion.identity) as GameObject;
+					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [0];
 				} else {
-					tempTileBG = Instantiate (cellBg2Prefab, new Vector3 (c, -r, 0), Quaternion.identity) as GameObject;
+					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [1];
 				}
 				tempTileBG.transform.parent = tileBgHolder;
 			}

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
-	[SerializeField] GameObject[] dotPrefabs;
-	[SerializeField] GameObject dot1Prefab;
-	[SerializeField] GameObject dot2Prefab;
-	[SerializeField] GameObject dot3Prefab;
+	[SerializeField] GameObject textObj;
+
+	[SerializeField] GameObject spriteObj;
+	[SerializeField] Sprite[] sprites;
 
 	string unitID;
 
@@ -24,9 +24,9 @@ public class Unit : MonoBehaviour
 
 	public int CurrentColumn { get; set; }
 
-	public int TotalUnitsThisConnectsTo { get; set; }
+	public int TotalConnectedUnits { get; set; }
 
-	List<Unit> belongingGroup;
+	public List<Unit> BelongingGroup { get; set; }
 
 	bool isPartOfBigONE;
 	int levelOfBigONE;
@@ -45,12 +45,22 @@ public class Unit : MonoBehaviour
 
 	public void initRandomUnit (int column, int row)
 	{
-		var rdmN = Random.Range (0, 3);
-		unitID = rdmN.ToString;
 		CurrentColumn = column;
 		CurrentRow = row;
-		tempUnitSprite = Instantiate (dotPrefabs [rdmN], new Vector3 (0, 0, 0), Quaternion.identity) as GameObject;
-		tempUnitSprite.transform.parent = transform;
+		TotalConnectedUnits = 1;
+
+		var rdmN = Random.Range (0, 3);
+		unitID = rdmN.ToString ();
+
+		spriteObj.GetComponent<SpriteRenderer> ().sprite = sprites [rdmN];
+
+//		tempUnitSprite = Instantiate (dotPrefabs [rdmN], new Vector3 (0, 0, 0), Quaternion.identity) as GameObject;
+//		tempUnitSprite.transform.parent = transform;
+	}
+
+	public void updateCountText (int t)
+	{
+		textObj.GetComponent<TextMesh> ().text = t.ToString ();
 	}
 
 	public void upgrade (int levels)

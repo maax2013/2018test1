@@ -8,8 +8,8 @@ public class UnitsManager : MonoBehaviour
 
 	[SerializeField] Transform unitsHolder;
 
-	GameObject tempUnit;
-	Unit tempUnitCtr;
+	GameObject tempObj;
+	Unit tempUnit;
 
 	Unit[] allUnitsOnBoard;
 	Unit[,] unitsTable;
@@ -27,22 +27,22 @@ public class UnitsManager : MonoBehaviour
 
 	public void createUnitsByRowColumn (int row, int column)
 	{
-		allUnitsOnBoard = new Unit[row * column];
+//		allUnitsOnBoard = new Unit[row * column];
+//		tempUnitIndex = 0;
 		unitsTable = new Unit[row, column];
-		tempUnitIndex = 0;
 
 		for (int r = 0; r < row; r++) {
 			for (int c = 0; c < column; c++) {
-				tempUnit = Instantiate (unitPrefab, new Vector3 (0, 0, 0), Quaternion.identity) as GameObject;
-				tempUnitCtr = tempUnit.GetComponent<Unit> ();
-				tempUnitCtr.initRandomUnit (c, r);
+				tempObj = Instantiate (unitPrefab, new Vector3 (0, 0, 0), Quaternion.identity) as GameObject;
+				tempUnit = tempObj.GetComponent<Unit> ();
+				tempUnit.initRandomUnit (c, r);
 
-				tempUnit.transform.parent = unitsHolder;
-				tempUnit.transform.position = new Vector3 (c, -r, tempUnit.transform.position.z);
+				tempObj.transform.parent = unitsHolder;
+				tempObj.transform.position = new Vector3 (c, -r, tempObj.transform.position.z);
 
-				allUnitsOnBoard [tempUnitIndex] = tempUnitCtr;
-				tempUnitIndex++;
-				unitsTable [r, c] = tempUnitCtr;
+//				allUnitsOnBoard [tempUnitIndex] = tempUnit;
+//				tempUnitIndex++;
+				unitsTable [r, c] = tempUnit;
 			}
 		}
 	}
@@ -52,68 +52,73 @@ public class UnitsManager : MonoBehaviour
 		unitsHolder.position = new Vector3 (x, y, z);
 	}
 
-	public void checkMatchesOnBoard ()
+	public void groupConnectedUnitsOnBoard ()
 	{
-		unitsToMatchingCheck = new List<Unit> ();
-		for (int i = 0; i < allUnitsOnBoard.Length; i++) {
-			unitsToMatchingCheck.Add (allUnitsOnBoard [i]);
+		//Check every unit for connections, from top left, to bottom right.
+		//only check the unit to the right and the unit to the bottom.
+		//Mark all connected units with the number of connections then put them into a group.
+
+		tempConnectedUnitsGroup = new List<Unit> ();
+		foreach (var u in unitsTable) {
+			checkConnectionsToRightAndBottom (u);
 		}
-		while (unitsToMatchingCheck.Count > 0) {
-			checkConnections (unitsToMatchingCheck [0], new Vector2 (1, 0));
-		}
+
+//		foreach (var u in unitsTable) {
+////			Debug.Log (u.TotalConnectedUnits);
+//			u.updateCountText (u.TotalConnectedUnits);
+//		}
+
+
+//		for (int i = 0; i < allUnitsOnBoard.Length; i++) {
+//			unitsToMatchingCheck.Add (allUnitsOnBoard [i]);
+//		}
 	}
 
-	void matchingCheck ()
+	void checkConnectionsToRightAndBottom (Unit u)
 	{
-		
-	}
-
-	void checkConnections (Unit u, Vector2 moveTo)
-	{
-		if (tempConnectedUnitsGroup) {
+		if (u.TotalConnectedUnits == 1) {
 			tempConnectedUnitsGroup.Clear ();
+			tempConnectedUnitsGroup.Add (u);
 		} else {
-			tempConnectedUnitsGroup = new List<Unit> ();
-		}
-		if (hasRectangleConnections (u)) {
-			
-		} else {
-			unitsToMatchingCheck.Remove (u);
+			tempConnectedUnitsGroup = u.BelongingGroup;
 		}
 
-
-	}
-
-	bool hasRectangleConnections (Unit u)
-	{
-		tempConnectedUnitsGroup.Add (u);
 		var connectedUnitRight = connectedUnitTowards (u, new Vector2 (1, 0));
-		var connectedUnitbottom = connectedUnitTowards (u, new Vector2 (1, 0));
-		if (connectedUnitRight && connectedUnitbottom) {
-			if (connectedUnitTowards (u, new Vector2 (1, 1))) {
-
-
-				//+++++
-				foreach (var unit in tempConnectedUnitsGroup) {
-					unitsToMatchingCheck.Remove (unit);
+		var connectedUnitbottom = connectedUnitTowards (u, new Vector2 (0, 1));
+		if (connectedUnitRight || connectedUnitbottom) {
+			if (connectedUnitRight) {
+				if (connectedUnitRight.TotalConnectedUnits == 1) {
+					tempConnectedUnitsGroup.Add (connectedUnitRight);
+				} else {
+//					foreach (var tempU in connectedUnitRight.BelongingGroup) {
+//						tempConnectedUnitsGroup.Add (tempU);
+//					}
+//					for (int i = 0; i < connectedUnitRight.BelongingGroup.Count; i++) {
+//						tempConnectedUnitsGroup.Add (connectedUnitRight.BelongingGroup [i]);
+//					}
+					tempConnectedUnitsGroup.Add (connectedUnitRight);
 				}
-				return true;
-			}
-		}
-		return false;
-	}
 
-	void checkForBiggerRectangle (Unit u1, Unit u2)
-	{
-		
+			}
+			if (connectedUnitbottom) {
+				tempConnectedUnitsGroup.Add (connectedUnitbottom);
+			}
+
+			foreach (var unit in tempConnectedUnitsGroup) {
+				unit.TotalConnectedUnits = tempConnectedUnitsGroup.Count;
+				unit.BelongingGroup = tempConnectedUnitsGroup;
+				unit.updateCountText (u.TotalConnectedUnits);
+			}
+
+		}
+
 	}
 
 	Unit connectedUnitTowards (Unit u1, Vector2 direction)
 	{
-		tempUnit = getUnitOnTable (u1.CurrentRow + direction.y, u1.CurrentColumn + direction.x);
+		tempUnit = getUnitOnTable (u1.CurrentRow + (int)direction.y, u1.CurrentColumn + (int)direction.x);
 		if (tempUnit) {
 			if (hasSameID (u1, tempUnit)) {
-				updateConnectedUnitsGroup (tempUnit, tempConnectedUnitsGroup);
 				return tempUnit;
 			}
 		}
@@ -122,7 +127,8 @@ public class UnitsManager : MonoBehaviour
 
 	Unit getUnitOnTable (int row, int column)
 	{
-		if (-1 < row < unitsTable.GetLength (0) && -1 < column < unitsTable.GetLength (0)) {
+		if (-1 < row && row < unitsTable.GetLength (0)
+		    && -1 < column && column < unitsTable.GetLength (1)) {
 			return unitsTable [row, column];
 		} else {
 			return null;
@@ -138,16 +144,48 @@ public class UnitsManager : MonoBehaviour
 			return false;
 		}
 	}
+		
 
-	void updateConnectedUnitsGroup (Unit u, List<Unit> group)
-	{
-		if (!group.Contains (u)) {
-			group.Add (u);
-			foreach (var unit in group) {
-				unit.TotalUnitsThisConnectsTo += 1;
-			}
-		}
-	}
+
+
+
+	//	public void checkMatchesOnBoard ()
+	//	{
+	//		unitsToMatchingCheck = new List<Unit> ();
+	//		for (int i = 0; i < allUnitsOnBoard.Length; i++) {
+	//			unitsToMatchingCheck.Add (allUnitsOnBoard [i]);
+	//		}
+	//		//Check every unit for connections, from top left, to bottom right.
+	//		//only check the unit to the right and the unit to the bottom.
+	//		//Mark all connected units with the number of connections then put them into a group.
+	//		while (unitsToMatchingCheck.Count > 0) {
+	//			checkConnections (unitsToMatchingCheck [0]);
+	//		}
+	//	}
+	//
+	//	bool hasRectangleConnections (Unit u)
+	//	{
+	//		tempConnectedUnitsGroup.Add (u);
+	//		var connectedUnitRight = connectedUnitTowards (u, new Vector2 (1, 0));
+	//		var connectedUnitbottom = connectedUnitTowards (u, new Vector2 (1, 0));
+	//		if (connectedUnitRight && connectedUnitbottom) {
+	//			if (connectedUnitTowards (u, new Vector2 (1, 1))) {
+	//
+	//
+	//				//+++++
+	//				foreach (var unit in tempConnectedUnitsGroup) {
+	//					unitsToMatchingCheck.Remove (unit);
+	//				}
+	//				return true;
+	//			}
+	//		}
+	//		return false;
+	//	}
+	//
+	//	void checkForBiggerRectangle (Unit u1, Unit u2)
+	//	{
+	//
+	//	}
 	
 	// Update is called once per frame
 	void Update ()
