@@ -5,7 +5,7 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
 	[SerializeField] GameObject textObj;
-
+	[SerializeField] GameObject glowObj;
 	[SerializeField] GameObject spriteObj;
 	[SerializeField] Sprite[] sprites;
 
@@ -53,15 +53,31 @@ public class Unit : MonoBehaviour
 		unitID = rdmN.ToString ();
 
 		spriteObj.GetComponent<SpriteRenderer> ().sprite = sprites [rdmN];
-
-//		tempUnitSprite = Instantiate (dotPrefabs [rdmN], new Vector3 (0, 0, 0), Quaternion.identity) as GameObject;
-//		tempUnitSprite.transform.parent = transform;
 	}
 
 	public void updateCountText ()
 	{
 		textObj.GetComponent<TextMesh> ().text = TotalConnectedUnits.ToString ();
 	}
+
+	public void debugText (string t)
+	{
+		textObj.GetComponent<TextMesh> ().text += t;
+	}
+
+	public void startDrag ()
+	{
+		glowObj.SetActive (true);
+		transform.localPosition += new Vector3 (0, 0, -1);
+	}
+
+	public void stopDrag ()
+	{
+		glowObj.SetActive (false);
+		transform.localPosition += new Vector3 (0, 0, 1);
+	}
+
+
 
 	public void upgrade (int levels)
 	{

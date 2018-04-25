@@ -34,6 +34,8 @@ public class MainGame : MonoBehaviour
 		unitsManager.createUnitsByRowColumn (boardRows, boardColumns);
 		unitsManager.repositionUnitsHolder (-boardOffX, boardOffY, 0f);
 		unitsManager.groupConnectedUnitsOnBoard ();
+//		unitsManager.checkMatch4sOnBoard ();
+		unitsManager.switchGameTouchable (true);
 	}
 	
 	// Update is called once per frame

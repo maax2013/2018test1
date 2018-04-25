@@ -12,8 +12,9 @@ public class UnitsManager : MonoBehaviour
 	Unit tempUnit;
 
 	Unit[] allUnitsOnBoard;
-	Unit[,] unitsTable;
 	int tempUnitIndex;
+
+	Unit[,] unitsTable;
 
 	List<Unit> unitsToMatchingCheck;
 	List<Unit> tempConnectedUnitsGroup;
@@ -27,8 +28,8 @@ public class UnitsManager : MonoBehaviour
 
 	public void createUnitsByRowColumn (int row, int column)
 	{
-		allUnitsOnBoard = new Unit[row * column];
-		tempUnitIndex = 0;
+//		allUnitsOnBoard = new Unit[row * column];
+//		tempUnitIndex = 0;
 		unitsTable = new Unit[row, column];
 
 		for (int r = 0; r < row; r++) {
@@ -40,8 +41,8 @@ public class UnitsManager : MonoBehaviour
 				tempObj.transform.parent = unitsHolder;
 				tempObj.transform.position = new Vector3 (c, -r, tempObj.transform.position.z);
 
-				allUnitsOnBoard [tempUnitIndex] = tempUnit;
-				tempUnitIndex++;
+//				allUnitsOnBoard [tempUnitIndex] = tempUnit;
+//				tempUnitIndex++;
 				unitsTable [r, c] = tempUnit;
 			}
 		}
@@ -58,89 +59,106 @@ public class UnitsManager : MonoBehaviour
 		//Check every unit for connections, from top left, to bottom right.
 		//only check the unit to the right and the unit to the bottom.
 		//Mark all connected units with the number of connections then put them into a group.
-
 		tempConnectedUnitsGroup = new List<Unit> ();
 		foreach (var u in unitsTable) {
 			checkConnectionsToRightAndBottom (u);
 		}
 
-//		foreach (var u in unitsTable) {
-////			Debug.Log (u.CurrentRow + ", " + u.CurrentColumn);
-////			u.updateCountText (u.TotalConnectedUnits);
-//		}
-
-
-//		for (int i = 0; i < allUnitsOnBoard.Length; i++) {
-//			unitsToMatchingCheck.Add (allUnitsOnBoard [i]);
-//		}
+		foreach (var u in unitsTable) {
+//			Debug.Log (u.CurrentRow + ", " + u.CurrentColumn);
+			u.updateCountText ();
+		}
 	}
 
-	void stepCheck ()
+	public void switchGameTouchable (bool on)
 	{
-		checkConnectionsToRightAndBottom (allUnitsOnBoard [tempUnitIndex]);
-		tempUnitIndex++;
+		var inputCtr = GetComponent<InputControl> ();
+		if (on) {
+//			gameTouchable = true;
+			inputCtr.touchable = true;
+			inputCtr.OnTouch += HandleOnTouch;
+		} else {
+//			gameTouchable = false;
+			inputCtr.touchable = false;
+			inputCtr.OnTouch -= HandleOnTouch;
+		}
+//		GUIctr.switchGameTouchable (on);
 	}
+
+	void HandleOnTouch (GameObject obj)
+	{
+//		Debug.Log (obj);
+		if (obj.GetComponent<Unit> () != null) {
+			Unit unit = obj.GetComponent<Unit> ();
+			if (GetComponent<DragDrop> ().enabled) {
+				//temprary use, before the true dragNdrop function is created
+				GetComponent<DragDrop> ().enabled = false;//------------------------
+				unit.stopDrag ();//--------------------------
+			} else {
+				GetComponent<DragDrop> ().enabled = true;
+				unit.startDrag ();
+			}
+
+		}
+	}
+
 
 	void checkConnectionsToRightAndBottom (Unit u)
 	{
+		//		Debug.Log (u.TotalConnectedUnits);
 		tempConnectedUnitsGroup = new List<Unit> ();
-//		Debug.Log (u.TotalConnectedUnits);
-		if (u.TotalConnectedUnits == 1) {
-//			tempConnectedUnitsGroup.Add (u);
-			tryAddToGroup (tempConnectedUnitsGroup, u);
+		if (u.TotalConnectedUnits < 2) {
+			tryAddToGroup (u, tempConnectedUnitsGroup);
 		} else {
-			tempConnectedUnitsGroup = joinSecondGroupToFirstGroup (tempConnectedUnitsGroup, u.BelongingGroup);
+			tempConnectedUnitsGroup = joinFirstGroupToSecondGroup (u.BelongingGroup, tempConnectedUnitsGroup);
 		}
 
-		var connectedUnitRight = connectedUnitTowards (u, new Vector2 (1, 0));
-		var connectedUnitbottom = connectedUnitTowards (u, new Vector2 (0, 1));
-		if (connectedUnitRight || connectedUnitbottom) {
+		Unit connectedUnitRight = getConnectedUnitTowards (u, new Vector2 (1, 0));
+		Unit connectedUnitBottom = getConnectedUnitTowards (u, new Vector2 (0, 1));
+		if (connectedUnitRight || connectedUnitBottom) {
 			if (connectedUnitRight) {
-				if (connectedUnitRight.TotalConnectedUnits == 1) {
-//					tempConnectedUnitsGroup.Add (connectedUnitRight);
-					tryAddToGroup (tempConnectedUnitsGroup, connectedUnitRight);
+				if (connectedUnitRight.TotalConnectedUnits < 2) {
+					tryAddToGroup (connectedUnitRight, tempConnectedUnitsGroup);
 				} else {
-					tempConnectedUnitsGroup = joinSecondGroupToFirstGroup (tempConnectedUnitsGroup, connectedUnitRight.BelongingGroup);
-//					for (int i = 0; i < connectedUnitRight.BelongingGroup.Count; i++) {
-//						tempConnectedUnitsGroup.Add (connectedUnitRight.BelongingGroup [i]);
-//					}
-//					tempConnectedUnitsGroup.Add (connectedUnitRight);
+					tempConnectedUnitsGroup = joinFirstGroupToSecondGroup (connectedUnitRight.BelongingGroup, tempConnectedUnitsGroup);
 				}
-
 			}
-			if (connectedUnitbottom) {
-				tryAddToGroup (tempConnectedUnitsGroup, connectedUnitbottom);
+			if (connectedUnitBottom) {
+				tryAddToGroup (connectedUnitBottom, tempConnectedUnitsGroup);
 			}
 
 			foreach (var unit in tempConnectedUnitsGroup) {
 				unit.TotalConnectedUnits = tempConnectedUnitsGroup.Count;
 				unit.BelongingGroup = tempConnectedUnitsGroup;
-				unit.updateCountText ();
+//				unit.updateCountText ();
 			}
-
 		}
-
 	}
 
-	List<Unit> joinSecondGroupToFirstGroup (List<Unit> g1, List<Unit> g2)
+	List<Unit> joinFirstGroupToSecondGroup (List<Unit> g1, List<Unit> g2)
 	{
-		Unit[] tempGroup = g2.ToArray ();
-
+		Unit[] tempGroup = g1.ToArray ();
 		foreach (var tempU in tempGroup) {
-//			g1.Add (tempU);
-			tryAddToGroup (g1, tempU);
+			tryAddToGroup (tempU, g2);
 		}
-		return g1;
+		return g2;
 	}
 
-	void tryAddToGroup (List<Unit> group, Unit u)
+	void tryAddToGroup (Unit u, List<Unit> group)
 	{
 		if (!group.Contains (u)) {
 			group.Add (u);
 		}
 	}
 
-	Unit connectedUnitTowards (Unit u1, Vector2 direction)
+	void tryRemoveFromGroup (Unit u, List<Unit> group)
+	{
+		if (group.Contains (u)) {
+			group.Remove (u);
+		}
+	}
+
+	Unit getConnectedUnitTowards (Unit u1, Vector2 direction)
 	{
 		tempUnit = getUnitOnTable (u1.CurrentRow + (int)direction.y, u1.CurrentColumn + (int)direction.x);
 		if (tempUnit) {
@@ -172,6 +190,78 @@ public class UnitsManager : MonoBehaviour
 	}
 
 
+
+
+	public void checkMatch4sOnBoard ()
+	{
+		List<List<Unit>> groupsToCheck = getAllConnectedUnitsGroupsMinimumOf (4);
+//		foreach (var l in groupsToCheck) {
+//			foreach (var u in l) {
+//				u.debugText ("=");
+//			}
+//		}
+	}
+
+	List<List<Unit>> getAllConnectedUnitsGroupsMinimumOf (int n)
+	{
+		List<Unit> allUnitsList = new List<Unit> ();
+		foreach (var u in unitsTable) {
+			allUnitsList.Add (u);
+		}
+		List<List<Unit>> validGroups = new List<List<Unit>> ();
+
+		while (allUnitsList.Count > 0) {
+			Unit tempU = allUnitsList [0];
+			if (doesUnitConnectedToMinimumOf (tempU, n)) {
+				validGroups.Add (tempU.BelongingGroup);
+				removeUnitsInSmallListFromLargeList (tempU.BelongingGroup, allUnitsList);
+			} else {
+				tryRemoveFromGroup (tempU, allUnitsList);
+			}
+		}
+
+		return validGroups;
+	}
+
+	bool doesUnitConnectedToMinimumOf (Unit u, int n)
+	{
+		if (u.TotalConnectedUnits >= n) {
+			return true;
+		}
+		return false;
+	}
+
+	void removeUnitsInSmallListFromLargeList (List<Unit> smallL, List<Unit> largeL)
+	{
+		Unit[] tempGroup = smallL.ToArray ();
+		foreach (var tempU in tempGroup) {
+			tryRemoveFromGroup (tempU, largeL);
+		}
+	}
+
+	List<List<Unit>> getMatch4sInGroup (List<Unit> group)
+	{
+		return null;
+	}
+
+	bool isMatch4 (Unit u)
+	{
+		Unit connectedUnitRight = getConnectedUnitTowards (u, new Vector2 (1, 0));
+		Unit connectedUnitBottom = getConnectedUnitTowards (u, new Vector2 (0, 1));//~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -1?
+		Unit connectedUnitBottomRight = getConnectedUnitTowards (u, new Vector2 (1, 1));
+
+		if (connectedUnitRight && connectedUnitBottom && connectedUnitBottomRight) {
+			return true;
+		}
+		return false;
+	}
+
+
+
+
+
+
+
 	//	void OnGUI ()
 	//	{
 	//		if (GUI.Button (new Rect (0, 0, 100, 35), "skip")) {
@@ -180,6 +270,12 @@ public class UnitsManager : MonoBehaviour
 	//
 	//	}
 
+	//	void stepCheck ()
+	//	{
+	//		checkConnectionsToRightAndBottom (allUnitsOnBoard [tempUnitIndex]);
+	//		tempUnitIndex++;
+	//	}
+	//
 
 
 
