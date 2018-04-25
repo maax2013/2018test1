@@ -17,17 +17,17 @@ public class BoardBg : MonoBehaviour
 		
 	}
 
-	public void createBoardTilesByRowColumn (int row, int column)
+	public void createBoardTiles_ByRowColumn (int row, int column)
 	{
 		for (int r = 0; r < row; r++) {
 			for (int c = 0; c < column; c++) {
-				tempTileBG = Instantiate (cellBg, new Vector3 (c, -r, 0), Quaternion.identity) as GameObject;
+				tempTileBG = Instantiate (cellBg, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
 				if ((r % 2 == 0 && c % 2 == 0) || (r % 2 != 0 && c % 2 != 0)) {
 					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [0];
 				} else {
 					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [1];
 				}
-				tempTileBG.transform.parent = tileBgHolder;
+				tempTileBG.transform.SetParent (tileBgHolder, false);
 			}
 		}
 	}

@@ -17,12 +17,12 @@ public class DragDrop : MonoBehaviour
 	{
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
 			if (OnMove != null) {
-				OnMove (new Vector2Int (0, 1));
+				OnMove (new Vector2Int (0, -1));
 			}
 		}
 		if (Input.GetKeyDown (KeyCode.UpArrow)) {
 			if (OnMove != null) {
-				OnMove (new Vector2Int (0, -1));
+				OnMove (new Vector2Int (0, 1));
 			}
 		}
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {

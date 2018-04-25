@@ -28,14 +28,11 @@ public class Unit : MonoBehaviour
 
 	public List<Unit> BelongingGroup { get; set; }
 
-	bool isPartOfBigONE;
-	int levelOfBigONE;
+	//	bool isPartOfBigONE;
+	//	int levelOfBigONE;
 
 
 
-
-
-	GameObject tempUnitSprite;
 
 	// Use this for initialization
 	void Start ()
@@ -67,14 +64,24 @@ public class Unit : MonoBehaviour
 
 	public void startDrag ()
 	{
-		glowObj.SetActive (true);
+		testMark (true);
 		transform.localPosition += new Vector3 (0, 0, -1);
 	}
 
 	public void stopDrag ()
 	{
-		glowObj.SetActive (false);
+		testMark (false);
 		transform.localPosition += new Vector3 (0, 0, 1);
+	}
+
+	public void testMark (bool on)
+	{
+		glowObj.SetActive (on);
+	}
+
+	public void becomeCueUnit ()
+	{
+		
 	}
 
 

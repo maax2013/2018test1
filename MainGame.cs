@@ -7,15 +7,15 @@ public class MainGame : MonoBehaviour
 	int boardColumns = 7;
 	int boardRows = 8;
 	float boardOffX, boardOffY;
-	
+
 	UnitsManager unitsManager;
 	BoardBg boardBgCtr;
 
 	// Use this for initialization
 	void Start ()
 	{
-		boardOffX = Mathf.Floor (boardColumns / 2);
-		boardOffY = Mathf.Floor (boardRows / 2);
+		boardOffX = (boardColumns - 1) / 2f;
+		boardOffY = (boardRows - 1) / 2f;
 
 		initBoardBG ();
 		initUnits ();
@@ -24,23 +24,23 @@ public class MainGame : MonoBehaviour
 	void initBoardBG ()
 	{
 		boardBgCtr = GetComponent<BoardBg> ();
-		boardBgCtr.createBoardTilesByRowColumn (boardRows, boardColumns);
-		boardBgCtr.repositionBoard (-boardOffX, boardOffY, 1f);
+		boardBgCtr.createBoardTiles_ByRowColumn (boardRows, boardColumns);
+		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 1f);
 	}
 
 	void initUnits ()
 	{
 		unitsManager = GetComponent<UnitsManager> ();
-		unitsManager.createUnitsByRowColumn (boardRows, boardColumns);
-		unitsManager.repositionUnitsHolder (-boardOffX, boardOffY, 0f);
-		unitsManager.groupConnectedUnitsOnBoard ();
-//		unitsManager.checkMatch4sOnBoard ();
-		unitsManager.switchGameTouchable (true);
+		unitsManager.createUnits_ByRowColumn (boardRows, boardColumns);
+		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
+		unitsManager.group_ConnectedUnits_OnBoard ();
+		//		unitsManager.checkMatch4s_OnBoard ();
+		unitsManager.switch_BoardTouchable (true);
 	}
-	
+
 	// Update is called once per frame
 	void Update ()
 	{
-		
+
 	}
 }
