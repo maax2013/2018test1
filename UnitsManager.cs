@@ -132,15 +132,42 @@ public class UnitsManager : MonoBehaviour
 	{
 		var inputCtr = GetComponent<InputControl> ();
 		if (on) {
-//			gameTouchable = true;
-			inputCtr.touchable = true;
-			inputCtr.OnTouch += HandleOnTouch;
+////			gameTouchable = true;
+//			inputCtr.inputEnabled = true;
+//			inputCtr.OnTouch += HandleOnTouch;
+			DragDrop dragDrop = GetComponent<DragDrop> ();
+			dragDrop.init (unitsTable);
+			InputControl.onDragStart += onDragStart;
+			InputControl.onDrag += onDrag;
+			InputControl.onDragEnd += onDragEnd;
+			dragDrop.OnMove += switchUnit_Towards;
 		} else {
-//			gameTouchable = false;
-			inputCtr.touchable = false;
-			inputCtr.OnTouch -= HandleOnTouch;
+////			gameTouchable = false;
+//			inputCtr.inputEnabled = false;
+//			inputCtr.OnTouch -= HandleOnTouch;
 		}
 //		GUIctr.switch_BoardTouchable (on);
+	}
+
+	void onDragEnd (GameObject obj, Vector3 pos)
+	{
+		cueUnit.stopDrag ();
+		//++++++++++++++++++++++
+	}
+
+	void onDrag (GameObject obj, Vector3 pos)
+	{
+		cueUnit.transform.localPosition = pos + new Vector3 (3f, 3.5f, -1f);
+		GetComponent<DragDrop> ().dragMove (pos);
+	}
+
+	void onDragStart (GameObject obj, Vector3 pos)
+	{
+		if (obj.GetComponent<Unit> () != null) {
+			cueUnit = obj.GetComponent<Unit> ();
+			cueUnit.startDrag ();
+			GetComponent<DragDrop> ().readyDrag (cueUnit);
+		}
 	}
 
 	void HandleOnTouch (GameObject obj)
@@ -166,13 +193,80 @@ public class UnitsManager : MonoBehaviour
 	void switchUnit_Towards (Vector2Int direction)
 	{
 		Unit targetUnit = getUnitOnTable (cueUnit.CurrentRow + direction.y, cueUnit.CurrentColumn + direction.x);
-		targetUnit.testMark (true);
+		if (targetUnit == null) {
+			print ("out!");
+			//+++++++++++++++++++++
+		} else {
+			//		targetUnit.testMark (true);
+			bool switchToSame = hasSameID (cueUnit, targetUnit);
+			if (switchToSame) {
+//				swapSameIdUnits (cueUnit, targetUnit);
+
+				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+				moveUnit_Towards (cueUnit, direction);
+				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
+			} else {
+				List<Unit> groupToCheckLater1 = getUnitGroup (cueUnit);
+				List<Unit> groupToCheckLater2 = getUnitGroup (targetUnit);
+
+				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+				moveUnit_Towards (cueUnit, direction);
+				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
+
+				if (groupToCheckLater1 != null) {
+					
+				}
+			}
+
+		}
+	}
+
+	void swapSameIdUnits (Unit u1, Unit u2)
+	{
+		var temp_TotalConnectedUnits = u1.TotalConnectedUnits;
+		var temp_BelongingGroup = u1.BelongingGroup;
+
+		tryRemoveFromGroup (u1, u1.BelongingGroup);
+		tryRemoveFromGroup (u2, u2.BelongingGroup);
+
+		u1.TotalConnectedUnits = u2.TotalConnectedUnits;
+		u1.BelongingGroup = u2.BelongingGroup;
+		tryAddToGroup (u1, u1.BelongingGroup);
+		u1.updateCountText ();
+
+		u2.TotalConnectedUnits = temp_TotalConnectedUnits;
+		u2.BelongingGroup = temp_BelongingGroup;
+		tryAddToGroup (u2, u2.BelongingGroup);
+		u2.updateCountText ();
+	}
+
+	List<Unit> getUnitGroup (Unit u)
+	{
+		if (u.TotalConnectedUnits > 1) {
+			tryRemoveFromGroup (u, u.BelongingGroup);
+			if (u.BelongingGroup.Count > 1) {
+				return u.BelongingGroup;
+			} else {
+				Unit onlyLeftUnit = u.BelongingGroup [0];
+				onlyLeftUnit.TotalConnectedUnits = 1;
+				onlyLeftUnit.updateCountText ();
+			}
+		}
+		return null;
+	}
+
+	void switchUnitsOnTable (Unit u1, Unit u2, Unit[,] table)
+	{
+		table [u1.CurrentRow, u1.CurrentColumn] = u2;
+		table [u2.CurrentRow, u2.CurrentColumn] = u1;
 	}
 
 	void moveUnit_Towards (Unit u, Vector2Int direction)
 	{
-		
+		u.switchTo (direction);
 	}
+
+
 
 
 

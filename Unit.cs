@@ -54,7 +54,7 @@ public class Unit : MonoBehaviour
 
 	public void updateCountText ()
 	{
-		textObj.GetComponent<TextMesh> ().text = TotalConnectedUnits.ToString ();
+//		textObj.GetComponent<TextMesh> ().text = TotalConnectedUnits.ToString ();
 	}
 
 	public void debugText (string t)
@@ -72,6 +72,17 @@ public class Unit : MonoBehaviour
 	{
 		testMark (false);
 		transform.localPosition += new Vector3 (0, 0, 1);
+	}
+
+	public void switchTo (Vector2Int v2)
+	{
+		CurrentRow += v2.y;
+		CurrentColumn += v2.x;
+
+		transform.localPosition = new Vector3 (transform.localPosition.x + v2.x, transform.localPosition.y + v2.y, transform.localPosition.z);
+
+//		TotalConnectedUnits = 1;
+//		updateCountText ();//--------------------------
 	}
 
 	public void testMark (bool on)
