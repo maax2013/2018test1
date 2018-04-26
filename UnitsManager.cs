@@ -53,20 +53,80 @@ public class UnitsManager : MonoBehaviour
 		unitsHolder.position = new Vector3 (x, y, z);
 	}
 
-	public void group_ConnectedUnits_OnBoard ()
+
+	public void markAll_linkedUnitsGroups ()
 	{
-		//Check every unit for connections, from bottom left, to Top right.
-		//only check the unit to the right and the unit to the Top.
-		//Mark all connected units with the number of connections then put them into a group.
-		foreach (var u in unitsTable) {
-			checkConnections_ToRightAndTop (u);
-		}
+		//check every unit for links. put all linked units into a group, and count total members in that group.
+		List<Unit> unitsToCheck = new List<Unit> ();
 
 		foreach (var u in unitsTable) {
-//			Debug.Log (u.CurrentRow + ", " + u.CurrentColumn);
-			u.updateCountText ();
+			unitsToCheck.Add (u);
+		}
+//		print (unitsToCheck.Count);
+		while (unitsToCheck.Count > 0) {
+			List<Unit> linkedUnits = get_LinkedUnitsGroup_of (unitsToCheck [0]);
+			remove_UnitsInSmallList_FromLargeList (linkedUnits, unitsToCheck);
 		}
 	}
+
+	List<Unit> get_LinkedUnitsGroup_of (Unit u)
+	{
+		List<Unit> unitsForFurtherCheck = new List<Unit> ();
+		List<Unit> linkedUnits = new List<Unit> ();
+
+		tryAddToGroup (u, linkedUnits);
+
+		tryLinkAdjacents (u, unitsForFurtherCheck, linkedUnits);
+
+		if (unitsForFurtherCheck.Count > 0) {
+			extendLinks (unitsForFurtherCheck, linkedUnits);
+		}
+		if (linkedUnits.Count > 0) {
+			foreach (var unit in linkedUnits) {
+				unit.TotalConnectedUnits = linkedUnits.Count;
+				unit.BelongingGroup = linkedUnits;
+				unit.updateCountText ();
+			}
+		}
+		return linkedUnits;
+	}
+
+	void tryLinkAdjacents (Unit u, List<Unit> moreToCheck, List<Unit> linkedUnits)
+	{
+		tryMakeLinkTowards (u, new Vector2Int (0, 1), moreToCheck, linkedUnits);
+		tryMakeLinkTowards (u, new Vector2Int (0, -1), moreToCheck, linkedUnits);
+		tryMakeLinkTowards (u, new Vector2Int (-1, 0), moreToCheck, linkedUnits);
+		tryMakeLinkTowards (u, new Vector2Int (1, 0), moreToCheck, linkedUnits);
+
+		tryRemoveFromGroup (u, moreToCheck);
+	}
+
+	void tryMakeLinkTowards (Unit u, Vector2Int dir, List<Unit> moreToCheck, List<Unit> linkedUnits)
+	{
+		Unit tryLinkUnit = getSameIdUnit_Towards (u, dir);
+		if (tryLinkUnit == null || tryLinkUnit.TotalConnectedUnits > 1) {
+			return;
+		} else {
+			u.TotalConnectedUnits += 1;
+			tryLinkUnit.TotalConnectedUnits += 1;
+			tryAddToGroup (tryLinkUnit, linkedUnits);
+			tryAddToGroup (tryLinkUnit, moreToCheck);
+		}
+	}
+
+	void extendLinks (List<Unit> moreToCheck, List<Unit> linkedUnits)
+	{
+		while (moreToCheck.Count > 0) {
+			tryLinkAdjacents (moreToCheck [0], moreToCheck, linkedUnits);
+		}
+	}
+
+
+
+
+
+
+
 
 	public void switch_BoardTouchable (bool on)
 	{
@@ -106,7 +166,7 @@ public class UnitsManager : MonoBehaviour
 	void switchUnit_Towards (Vector2Int direction)
 	{
 		Unit targetUnit = getUnitOnTable (cueUnit.CurrentRow + direction.y, cueUnit.CurrentColumn + direction.x);
-//		targetUnit.testMark (true);
+		targetUnit.testMark (true);
 	}
 
 	void moveUnit_Towards (Unit u, Vector2Int direction)
@@ -115,46 +175,7 @@ public class UnitsManager : MonoBehaviour
 	}
 
 
-	void checkConnections_ToRightAndTop (Unit u)
-	{
-		//		Debug.Log (u.TotalConnectedUnits);
-		List<Unit> temp_ConnectedUnits_Group = new List<Unit> ();
-		if (u.TotalConnectedUnits < 2) {
-			tryAddToGroup (u, temp_ConnectedUnits_Group);
-		} else {
-			temp_ConnectedUnits_Group = joinFirstGroup_ToSecondGroup (u.BelongingGroup, temp_ConnectedUnits_Group);
-		}
 
-		Unit connectedUnitRight = getConnectedUnit_Towards (u, new Vector2Int (1, 0));
-		Unit connectedUnitTop = getConnectedUnit_Towards (u, new Vector2Int (0, 1));
-		if (connectedUnitRight || connectedUnitTop) {
-			if (connectedUnitRight) {
-				if (connectedUnitRight.TotalConnectedUnits < 2) {
-					tryAddToGroup (connectedUnitRight, temp_ConnectedUnits_Group);
-				} else {
-					temp_ConnectedUnits_Group = joinFirstGroup_ToSecondGroup (connectedUnitRight.BelongingGroup, temp_ConnectedUnits_Group);
-				}
-			}
-			if (connectedUnitTop) {
-				tryAddToGroup (connectedUnitTop, temp_ConnectedUnits_Group);
-			}
-
-			foreach (var unit in temp_ConnectedUnits_Group) {
-				unit.TotalConnectedUnits = temp_ConnectedUnits_Group.Count;
-				unit.BelongingGroup = temp_ConnectedUnits_Group;
-//				unit.updateCountText ();
-			}
-		}
-	}
-
-	List<Unit> joinFirstGroup_ToSecondGroup (List<Unit> g1, List<Unit> g2)
-	{
-		Unit[] tempGroup = g1.ToArray ();
-		foreach (var tempU in tempGroup) {
-			tryAddToGroup (tempU, g2);
-		}
-		return g2;
-	}
 
 	void tryAddToGroup (Unit u, List<Unit> group)
 	{
@@ -170,7 +191,7 @@ public class UnitsManager : MonoBehaviour
 		}
 	}
 
-	Unit getConnectedUnit_Towards (Unit u1, Vector2Int direction)
+	Unit getSameIdUnit_Towards (Unit u1, Vector2Int direction)
 	{
 		tempUnit = getUnitOnTable (u1.CurrentRow + direction.y, u1.CurrentColumn + direction.x);
 		if (tempUnit) {
@@ -206,7 +227,8 @@ public class UnitsManager : MonoBehaviour
 
 	public void checkMatch4s_OnBoard ()
 	{
-		List<List<Unit>> groupsToCheck = getAll_ConnectedUnitsGroups_MinimumOf (4);
+//		List<List<Unit>> groupsToCheck = getAll_ConnectedUnitsGroups_MinimumOf (4);
+
 //		foreach (var l in groupsToCheck) {
 //			foreach (var u in l) {
 //				u.debugText ("=");
@@ -258,9 +280,9 @@ public class UnitsManager : MonoBehaviour
 
 	bool isMatch4 (Unit u)
 	{
-		Unit connectedUnitRight = getConnectedUnit_Towards (u, new Vector2Int (1, 0));
-		Unit connectedUnitTop = getConnectedUnit_Towards (u, new Vector2Int (0, 1));
-		Unit connectedUnitTopRight = getConnectedUnit_Towards (u, new Vector2Int (1, 1));
+		Unit connectedUnitRight = getSameIdUnit_Towards (u, new Vector2Int (1, 0));
+		Unit connectedUnitTop = getSameIdUnit_Towards (u, new Vector2Int (0, 1));
+		Unit connectedUnitTopRight = getSameIdUnit_Towards (u, new Vector2Int (1, 1));
 
 		if (connectedUnitRight && connectedUnitTop && connectedUnitTopRight) {
 			return true;
@@ -274,23 +296,33 @@ public class UnitsManager : MonoBehaviour
 
 
 
-	//	void OnGUI ()
+	void OnGUI ()
+	{
+		if (GUI.Button (new Rect (0, 0, 200, 55), "test")) {
+			stepCheck ();
+		}
+	
+	}
+
+	void stepCheck ()
+	{
+//			checkConnections_ToRightAndTop (allUnitsOnBoard [tempUnitIndex]);
+//			tempUnitIndex++;
+
+//		unitsToCheck [0].testMark (true);
+//		get_LinkedUnitsGroup_of (unitsToCheck [0]);
+	}
+	
+
+
+	//	List<Unit> joinFirstGroup_ToSecondGroup (List<Unit> g1, List<Unit> g2)
 	//	{
-	//		if (GUI.Button (new Rect (0, 0, 100, 35), "skip")) {
-	//			stepCheck ();
+	//		Unit[] tempGroup = g1.ToArray ();
+	//		foreach (var tempU in tempGroup) {
+	//			tryAddToGroup (tempU, g2);
 	//		}
-	//
+	//		return g2;
 	//	}
-
-	//	void stepCheck ()
-	//	{
-	//		checkConnections_ToRightAndTop (allUnitsOnBoard [tempUnitIndex]);
-	//		tempUnitIndex++;
-	//	}
-	//
-
-
-
 	//	public void checkMatchesOnBoard ()
 	//	{
 	//		unitsToMatchingCheck = new List<Unit> ();

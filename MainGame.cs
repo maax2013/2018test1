@@ -33,7 +33,7 @@ public class MainGame : MonoBehaviour
 		unitsManager = GetComponent<UnitsManager> ();
 		unitsManager.createUnits_ByRowColumn (boardRows, boardColumns);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
-		unitsManager.group_ConnectedUnits_OnBoard ();
+		unitsManager.markAll_linkedUnitsGroups ();
 		//		unitsManager.checkMatch4s_OnBoard ();
 		unitsManager.switch_BoardTouchable (true);
 	}
