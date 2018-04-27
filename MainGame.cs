@@ -37,7 +37,7 @@ public class MainGame : MonoBehaviour
 		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();
 //		unitsManager.markAll_linkedUnitsGroups ();
 		//		unitsManager.checkMatch4s_OnBoard ();
-//		unitsManager.switch_BoardTouchable (true);
+		unitsManager.switch_BoardTouchable (true);
 	}
 
 	// Update is called once per frame

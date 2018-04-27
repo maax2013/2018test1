@@ -41,7 +41,7 @@ public class UnitsManager : MonoBehaviour
 				tempObj.transform.SetParent (unitsHolder, false);
 
 				tempUnit = tempObj.GetComponent<Unit> ();
-				tempUnit.initRandomUnit (c, r);
+				tempUnit.initUnit (c, r);
 
 //				allUnitsOnBoard [tempUnitIndex] = tempUnit;
 //				tempUnitIndex++;
@@ -225,22 +225,22 @@ public class UnitsManager : MonoBehaviour
 		Unit targetUnit = getUnitOnTable (cueUnit.CurrentColumn + direction.x, cueUnit.CurrentRow + direction.y);
 		if (targetUnit == null) {
 			print ("out!");
-//			dragDropDone ();
+			dragDropDone ();
 			//+++++++++++++++++++++
 		} else {
 //			//		targetUnit.testMark (true);
-//			bool switchToSame = hasSameID (cueUnit, targetUnit);
-//			if (switchToSame) {
+//			bool moveToSame = hasSameID (cueUnit, targetUnit);
+//			if (moveToSame) {
 ////				swapSameIdUnits (cueUnit, targetUnit);
 //
-//				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+//				switchUnitsCoord (cueUnit, targetUnit, unitsTable);
 //				moveUnit_Towards (cueUnit, direction);
 //				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
 //			} else {
 ////				List<Unit> groupToCheckLater1 = getUnitGroup (cueUnit);
 ////				List<Unit> groupToCheckLater2 = getUnitGroup (targetUnit);
 //
-//				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+//				switchUnitsCoord (cueUnit, targetUnit, unitsTable);
 //				moveUnit_Towards (cueUnit, direction);
 //				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
 //
@@ -248,56 +248,125 @@ public class UnitsManager : MonoBehaviour
 ////					
 ////				}
 //			}
-			switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
-//			moveUnit_Towards (cueUnit, direction);
+			switchUnitsCoord (cueUnit, targetUnit, unitsTable);
+			/*only need to move the target unit, the cue unit is following the pointer*/
 			moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
 
+			tryMakeBlock (cueUnit);
+			tryMakeBlock (targetUnit);
 		}
 	}
 
-	void swapSameIdUnits (Unit u1, Unit u2)
+	void tryMakeBlock (Unit u)
 	{
-		var temp_TotalConnectedUnits = u1.TotalConnectedUnits;
-		var temp_BelongingGroup = u1.BelongingGroup;
+		List<Unit[]> surroundingMatch4s = getSurroundingMatch4s (u);
 
-		tryRemoveFromGroup (u1, u1.BelongingGroup);
-		tryRemoveFromGroup (u2, u2.BelongingGroup);
-
-		u1.TotalConnectedUnits = u2.TotalConnectedUnits;
-		u1.BelongingGroup = u2.BelongingGroup;
-		tryAddToGroup (u1, u1.BelongingGroup);
-		u1.updateCountText ();
-
-		u2.TotalConnectedUnits = temp_TotalConnectedUnits;
-		u2.BelongingGroup = temp_BelongingGroup;
-		tryAddToGroup (u2, u2.BelongingGroup);
-		u2.updateCountText ();
+		if (surroundingMatch4s.Count > 0) {
+			
+		}
 	}
 
-	List<Unit> getUnitGroup (Unit u)
+	bool linkToExistingBlock (Unit[] group)
 	{
-		if (u.TotalConnectedUnits > 1) {
-			tryRemoveFromGroup (u, u.BelongingGroup);
-			if (u.BelongingGroup.Count > 1) {
-				return u.BelongingGroup;
-			} else {
-				Unit onlyLeftUnit = u.BelongingGroup [0];
-				onlyLeftUnit.TotalConnectedUnits = 1;
-				onlyLeftUnit.updateCountText ();
+		int totalLinksToOtherBlocks = 0;
+		/*loop start with the second item, since the first one is the unit just switched over*/
+		for (int i = 1; i < group.Length; i++) {
+			if (group [i].blockGroup.Count > 0) {
+				totalLinksToOtherBlocks++;
 			}
 		}
-		return null;
+		if (totalLinksToOtherBlocks > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
-	void switchUnitsOnTable (Unit u1, Unit u2, Unit[,] table)
+	void makeNewBlock (Unit[] group)
+	{
+		List<Unit> blockGroup = new List<Unit> ();
+		blockGroup.AddRange (group);
+		foreach (Unit u in group) {
+			u.blockGroup = blockGroup;
+		}
+		//+++++++++++block image
+	}
+
+	void tryMakeBiggerBlock ()
+	{
+		
+	}
+
+	List<Unit[]> getSurroundingMatch4s (Unit u)
+	{
+		List<Unit[]> candidatesGroups = new List<Unit[]> ();
+
+		Unit[] topRightGroup = getmatch4Units_towards (u, new Vector2Int (1, 1));
+		Unit[] topleftGroup = getmatch4Units_towards (u, new Vector2Int (-1, 1));
+		Unit[] bottomRightGroup = getmatch4Units_towards (u, new Vector2Int (1, -1));
+		Unit[] bottomLeftGroup = getmatch4Units_towards (u, new Vector2Int (-1, -1));
+
+		if (topRightGroup != null)
+			candidatesGroups.Add (topRightGroup);
+		if (topleftGroup != null)
+			candidatesGroups.Add (topleftGroup);
+		if (bottomRightGroup != null)
+			candidatesGroups.Add (bottomRightGroup);
+		if (bottomLeftGroup != null)
+			candidatesGroups.Add (bottomLeftGroup);
+
+		return candidatesGroups;
+	}
+
+
+	//	void swapSameIdUnits (Unit u1, Unit u2)
+	//	{
+	//		var temp_TotalConnectedUnits = u1.TotalConnectedUnits;
+	//		var temp_BelongingGroup = u1.BelongingGroup;
+	//
+	//		tryRemoveFromGroup (u1, u1.BelongingGroup);
+	//		tryRemoveFromGroup (u2, u2.BelongingGroup);
+	//
+	//		u1.TotalConnectedUnits = u2.TotalConnectedUnits;
+	//		u1.BelongingGroup = u2.BelongingGroup;
+	//		tryAddToGroup (u1, u1.BelongingGroup);
+	//		u1.updateCountText ();
+	//
+	//		u2.TotalConnectedUnits = temp_TotalConnectedUnits;
+	//		u2.BelongingGroup = temp_BelongingGroup;
+	//		tryAddToGroup (u2, u2.BelongingGroup);
+	//		u2.updateCountText ();
+	//	}
+
+	//	List<Unit> getUnitGroup (Unit u)
+	//	{
+	//		if (u.TotalConnectedUnits > 1) {
+	//			tryRemoveFromGroup (u, u.BelongingGroup);
+	//			if (u.BelongingGroup.Count > 1) {
+	//				return u.BelongingGroup;
+	//			} else {
+	//				Unit onlyLeftUnit = u.BelongingGroup [0];
+	//				onlyLeftUnit.TotalConnectedUnits = 1;
+	//				onlyLeftUnit.updateCountText ();
+	//			}
+	//		}
+	//		return null;
+	//	}
+
+	void switchUnitsCoord (Unit u1, Unit u2, Unit[,] table)
 	{
 		table [u1.CurrentColumn, u1.CurrentRow] = u2;
 		table [u2.CurrentColumn, u2.CurrentRow] = u1;
+
+		int tempColumn = u1.CurrentColumn;
+		int tempRow = u1.CurrentRow;
+		u1.setUnitCoord (u2.CurrentColumn, u2.CurrentRow);
+		u2.setUnitCoord (tempColumn, tempRow);
 	}
 
 	void moveUnit_Towards (Unit u, Vector2Int direction)
 	{
-		u.switchTo (direction);
+		u.moveTo (direction);
 	}
 
 
@@ -353,45 +422,45 @@ public class UnitsManager : MonoBehaviour
 
 
 
-	public void checkMatch4s_OnBoard ()
-	{
-//		List<List<Unit>> groupsToCheck = getAll_ConnectedUnitsGroups_MinimumOf (4);
-
-//		foreach (var l in groupsToCheck) {
-//			foreach (var u in l) {
-//				u.debugText ("=");
-//			}
-//		}
-	}
-
-	List<List<Unit>> getAll_ConnectedUnitsGroups_MinimumOf (int n)
-	{
-		List<Unit> allUnitsList = new List<Unit> ();
-		foreach (var u in unitsTable) {
-			allUnitsList.Add (u);
-		}
-		List<List<Unit>> validGroups = new List<List<Unit>> ();
-
-		while (allUnitsList.Count > 0) {
-			Unit tempU = allUnitsList [0];
-			if (unit_ConnectToAtLeast (tempU, n)) {
-				validGroups.Add (tempU.BelongingGroup);
-				remove_UnitsInSmallList_FromLargeList (tempU.BelongingGroup, allUnitsList);
-			} else {
-				tryRemoveFromGroup (tempU, allUnitsList);
-			}
-		}
-
-		return validGroups;
-	}
-
-	bool unit_ConnectToAtLeast (Unit u, int n)
-	{
-		if (u.TotalConnectedUnits >= n) {
-			return true;
-		}
-		return false;
-	}
+	//	public void checkMatch4s_OnBoard ()
+	//	{
+	////		List<List<Unit>> groupsToCheck = getAll_ConnectedUnitsGroups_MinimumOf (4);
+	//
+	////		foreach (var l in groupsToCheck) {
+	////			foreach (var u in l) {
+	////				u.debugText ("=");
+	////			}
+	////		}
+	//	}
+	//
+	//	List<List<Unit>> getAll_ConnectedUnitsGroups_MinimumOf (int n)
+	//	{
+	//		List<Unit> allUnitsList = new List<Unit> ();
+	//		foreach (var u in unitsTable) {
+	//			allUnitsList.Add (u);
+	//		}
+	//		List<List<Unit>> validGroups = new List<List<Unit>> ();
+	//
+	//		while (allUnitsList.Count > 0) {
+	//			Unit tempU = allUnitsList [0];
+	//			if (unit_ConnectToAtLeast (tempU, n)) {
+	//				validGroups.Add (tempU.BelongingGroup);
+	//				remove_UnitsInSmallList_FromLargeList (tempU.BelongingGroup, allUnitsList);
+	//			} else {
+	//				tryRemoveFromGroup (tempU, allUnitsList);
+	//			}
+	//		}
+	//
+	//		return validGroups;
+	//	}
+	//
+	//	bool unit_ConnectToAtLeast (Unit u, int n)
+	//	{
+	//		if (u.TotalConnectedUnits >= n) {
+	//			return true;
+	//		}
+	//		return false;
+	//	}
 
 	void remove_UnitsInSmallList_FromLargeList (List<Unit> smallL, List<Unit> largeL)
 	{

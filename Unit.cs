@@ -28,9 +28,10 @@ public class Unit : MonoBehaviour
 
 	public List<Unit> BelongingGroup { get; set; }
 
+
 	public List<List<Unit>> match4Groups { get; set; }
 
-	public List<Unit> bigOneGroup { get; set; }
+	public List<Unit> blockGroup { get; set; }
 
 	//	bool isPartOfBigONE;
 	//	int levelOfBigONE;
@@ -44,9 +45,10 @@ public class Unit : MonoBehaviour
 		
 	}
 
-	public void initRandomUnit (int column, int row)
+	public void initUnit (int column, int row)
 	{
 		TotalConnectedUnits = 1;
+		blockGroup = new List<Unit> ();
 		setUnitCoord (column, row);
 		randomId ();
 	}
@@ -87,11 +89,8 @@ public class Unit : MonoBehaviour
 		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
 	}
 
-	public void switchTo (Vector2Int v2)
+	public void moveTo (Vector2Int v2)
 	{
-		CurrentRow += v2.y;
-		CurrentColumn += v2.x;
-
 		transform.localPosition = new Vector3 (transform.localPosition.x + v2.x, transform.localPosition.y + v2.y, transform.localPosition.z);
 
 //		TotalConnectedUnits = 1;

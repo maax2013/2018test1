@@ -42,11 +42,8 @@ public class DragDrop : MonoBehaviour
 			if (OnMove != null) {
 				OnMove (new Vector2Int (distance.x, distance.y));
 			}
+			lastTileCoord = nextTileCoord;
 		}
-		lastTileCoord = nextTileCoord;
-		cueUnit.setUnitCoord (nextTileCoord.x, nextTileCoord.y);
-//		cueUnit.CurrentRow = nextTileCoord.x;
-//		cueUnit.CurrentColumn = nextTileCoord.y;
 	}
 
 	Vector2Int convertPosToTableCoord (Vector3 pos)
