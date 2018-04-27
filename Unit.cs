@@ -28,6 +28,10 @@ public class Unit : MonoBehaviour
 
 	public List<Unit> BelongingGroup { get; set; }
 
+	public List<List<Unit>> match4Groups { get; set; }
+
+	public List<Unit> bigOneGroup { get; set; }
+
 	//	bool isPartOfBigONE;
 	//	int levelOfBigONE;
 
@@ -42,10 +46,20 @@ public class Unit : MonoBehaviour
 
 	public void initRandomUnit (int column, int row)
 	{
-		CurrentColumn = column;
-		CurrentRow = row;
+		setUnitCoord (column, row);
 		TotalConnectedUnits = 1;
 
+		randomId ();
+	}
+
+	public void setUnitCoord (int column, int row)
+	{
+		CurrentColumn = column;
+		CurrentRow = row;
+	}
+
+	public void randomId ()
+	{
 		var rdmN = Random.Range (0, 3);
 		unitID = rdmN.ToString ();
 
@@ -71,7 +85,7 @@ public class Unit : MonoBehaviour
 	public void stopDrag ()
 	{
 		testMark (false);
-		transform.localPosition += new Vector3 (0, 0, 1);
+		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
 	}
 
 	public void switchTo (Vector2Int v2)

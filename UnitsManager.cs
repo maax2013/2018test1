@@ -14,6 +14,7 @@ public class UnitsManager : MonoBehaviour
 	int tempUnitIndex;
 
 	Unit[,] unitsTable;
+	Bounds gameBoardBoundary;
 
 	//	List<Unit> unitsToMatchingCheck;
 
@@ -31,7 +32,9 @@ public class UnitsManager : MonoBehaviour
 //		allUnitsOnBoard = new Unit[row * column];
 //		tempUnitIndex = 0;
 		unitsTable = new Unit[row, column];
+		gameBoardBoundary = new Bounds (Vector3.zero, new Vector3 (column, row, 0));
 
+		/*create units table, from bottom left, to top right, column after column.*/
 		for (int r = 0; r < row; r++) {
 			for (int c = 0; c < column; c++) {
 				GameObject tempObj = Instantiate (unitPrefab, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
@@ -56,7 +59,7 @@ public class UnitsManager : MonoBehaviour
 
 	public void markAll_linkedUnitsGroups ()
 	{
-		//check every unit for links. put all linked units into a group, and count total members in that group.
+		/*check every unit for links. put all linked units into a group, and count total members in that group.*/
 		List<Unit> unitsToCheck = new List<Unit> ();
 
 		foreach (var u in unitsTable) {
@@ -138,9 +141,9 @@ public class UnitsManager : MonoBehaviour
 			DragDrop dragDrop = GetComponent<DragDrop> ();
 			dragDrop.init (unitsTable);
 			InputControl.onDragStart += onDragStart;
-			InputControl.onDrag += onDrag;
-			InputControl.onDragEnd += onDragEnd;
-			dragDrop.OnMove += switchUnit_Towards;
+//			InputControl.onDrag += onDrag;
+//			InputControl.onDragEnd += onDragEnd;
+//			dragDrop.OnMove += switchUnit_Towards;
 		} else {
 ////			gameTouchable = false;
 //			inputCtr.inputEnabled = false;
@@ -151,14 +154,37 @@ public class UnitsManager : MonoBehaviour
 
 	void onDragEnd (GameObject obj, Vector3 pos)
 	{
+		dragDropDone ();
+	}
+
+	void dragDropDone ()
+	{
 		cueUnit.stopDrag ();
+		DragDrop dragDrop = GetComponent<DragDrop> ();
+		InputControl.onDrag -= onDrag;
+		InputControl.onDragEnd -= onDragEnd;
+		dragDrop.OnMove -= switchUnit_Towards;
 		//++++++++++++++++++++++
 	}
 
 	void onDrag (GameObject obj, Vector3 pos)
 	{
 		cueUnit.transform.localPosition = pos + new Vector3 (3f, 3.5f, -1f);
-		GetComponent<DragDrop> ().dragMove (pos);
+		if (pointerInsideBoundary (pos, gameBoardBoundary)) {
+//			print ("inside");
+			GetComponent<DragDrop> ().dragMove (pos);
+		} else {
+//			print ("out");
+			dragDropDone ();
+		}
+	}
+
+	bool pointerInsideBoundary (Vector3 p, Bounds boundary)
+	{
+		if (boundary.Contains (p)) {
+			return true;
+		}
+		return false;
 	}
 
 	void onDragStart (GameObject obj, Vector3 pos)
@@ -166,7 +192,11 @@ public class UnitsManager : MonoBehaviour
 		if (obj.GetComponent<Unit> () != null) {
 			cueUnit = obj.GetComponent<Unit> ();
 			cueUnit.startDrag ();
-			GetComponent<DragDrop> ().readyDrag (cueUnit);
+			DragDrop dragDrop = GetComponent<DragDrop> ();
+			dragDrop.readyDrag (cueUnit);
+			InputControl.onDrag += onDrag;
+			InputControl.onDragEnd += onDragEnd;
+			dragDrop.OnMove += switchUnit_Towards;
 		}
 	}
 
@@ -195,28 +225,32 @@ public class UnitsManager : MonoBehaviour
 		Unit targetUnit = getUnitOnTable (cueUnit.CurrentRow + direction.y, cueUnit.CurrentColumn + direction.x);
 		if (targetUnit == null) {
 			print ("out!");
+//			dragDropDone ();
 			//+++++++++++++++++++++
 		} else {
-			//		targetUnit.testMark (true);
-			bool switchToSame = hasSameID (cueUnit, targetUnit);
-			if (switchToSame) {
-//				swapSameIdUnits (cueUnit, targetUnit);
-
-				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
-				moveUnit_Towards (cueUnit, direction);
-				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
-			} else {
-				List<Unit> groupToCheckLater1 = getUnitGroup (cueUnit);
-				List<Unit> groupToCheckLater2 = getUnitGroup (targetUnit);
-
-				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
-				moveUnit_Towards (cueUnit, direction);
-				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
-
-				if (groupToCheckLater1 != null) {
-					
-				}
-			}
+//			//		targetUnit.testMark (true);
+//			bool switchToSame = hasSameID (cueUnit, targetUnit);
+//			if (switchToSame) {
+////				swapSameIdUnits (cueUnit, targetUnit);
+//
+//				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+//				moveUnit_Towards (cueUnit, direction);
+//				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
+//			} else {
+////				List<Unit> groupToCheckLater1 = getUnitGroup (cueUnit);
+////				List<Unit> groupToCheckLater2 = getUnitGroup (targetUnit);
+//
+//				switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+//				moveUnit_Towards (cueUnit, direction);
+//				moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
+//
+////				if (groupToCheckLater1 != null) {
+////					
+////				}
+//			}
+			switchUnitsOnTable (cueUnit, targetUnit, unitsTable);
+//			moveUnit_Towards (cueUnit, direction);
+			moveUnit_Towards (targetUnit, new Vector2Int (-direction.x, -direction.y));
 
 		}
 	}
