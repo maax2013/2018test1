@@ -27,16 +27,16 @@ public class UnitsManager : MonoBehaviour
 		
 	}
 
-	public void createUnits_ByRowColumn (int row, int column)
+	public void createUnits_ByRowColumn (int column, int row)
 	{
 //		allUnitsOnBoard = new Unit[row * column];
 //		tempUnitIndex = 0;
-		unitsTable = new Unit[row, column];
+		unitsTable = new Unit[column, row];
 		gameBoardBoundary = new Bounds (Vector3.zero, new Vector3 (column, row, 0));
 
 		/*create units table, from bottom left, to top right, column after column.*/
-		for (int r = 0; r < row; r++) {
-			for (int c = 0; c < column; c++) {
+		for (int c = 0; c < column; c++) {
+			for (int r = 0; r < row; r++) {
 				GameObject tempObj = Instantiate (unitPrefab, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
 				tempObj.transform.SetParent (unitsHolder, false);
 
@@ -45,7 +45,7 @@ public class UnitsManager : MonoBehaviour
 
 //				allUnitsOnBoard [tempUnitIndex] = tempUnit;
 //				tempUnitIndex++;
-				unitsTable [r, c] = tempUnit;
+				unitsTable [c, r] = tempUnit;
 			}
 		}
 //		tempUnitIndex = 0;
@@ -222,7 +222,7 @@ public class UnitsManager : MonoBehaviour
 
 	void switchUnit_Towards (Vector2Int direction)
 	{
-		Unit targetUnit = getUnitOnTable (cueUnit.CurrentRow + direction.y, cueUnit.CurrentColumn + direction.x);
+		Unit targetUnit = getUnitOnTable (cueUnit.CurrentColumn + direction.x, cueUnit.CurrentRow + direction.y);
 		if (targetUnit == null) {
 			print ("out!");
 //			dragDropDone ();
@@ -291,8 +291,8 @@ public class UnitsManager : MonoBehaviour
 
 	void switchUnitsOnTable (Unit u1, Unit u2, Unit[,] table)
 	{
-		table [u1.CurrentRow, u1.CurrentColumn] = u2;
-		table [u2.CurrentRow, u2.CurrentColumn] = u1;
+		table [u1.CurrentColumn, u1.CurrentRow] = u2;
+		table [u2.CurrentColumn, u2.CurrentRow] = u1;
 	}
 
 	void moveUnit_Towards (Unit u, Vector2Int direction)
@@ -321,7 +321,7 @@ public class UnitsManager : MonoBehaviour
 
 	Unit getSameIdUnit_Towards (Unit u1, Vector2Int direction)
 	{
-		tempUnit = getUnitOnTable (u1.CurrentRow + direction.y, u1.CurrentColumn + direction.x);
+		tempUnit = getUnitOnTable (u1.CurrentColumn + direction.x, u1.CurrentRow + direction.y);
 		if (tempUnit) {
 			if (hasSameID (u1, tempUnit)) {
 				return tempUnit;
@@ -330,11 +330,11 @@ public class UnitsManager : MonoBehaviour
 		return null;
 	}
 
-	Unit getUnitOnTable (int row, int column)
+	Unit getUnitOnTable (int column, int row)
 	{
-		if (-1 < row && row < unitsTable.GetLength (0)
-		    && -1 < column && column < unitsTable.GetLength (1)) {
-			return unitsTable [row, column];
+		if (-1 < column && column < unitsTable.GetLength (0)
+		    && -1 < row && row < unitsTable.GetLength (1)) {
+			return unitsTable [column, row];
 		} else {
 			return null;
 		}

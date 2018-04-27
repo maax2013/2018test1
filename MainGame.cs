@@ -24,16 +24,16 @@ public class MainGame : MonoBehaviour
 	void initBoardBG ()
 	{
 		boardBgCtr = GetComponent<BoardBg> ();
-		boardBgCtr.createBoardTiles_ByRowColumn (boardRows, boardColumns);
+		boardBgCtr.createBoardTiles_ByRowColumn (boardColumns, boardRows);
 		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 1f);
 	}
 
 	void initUnits ()
 	{
 		unitsManager = GetComponent<UnitsManager> ();
-		unitsManager.createUnits_ByRowColumn (boardRows, boardColumns);
+		unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
-		unitsManager.markAll_linkedUnitsGroups ();
+//		unitsManager.markAll_linkedUnitsGroups ();
 		//		unitsManager.checkMatch4s_OnBoard ();
 		unitsManager.switch_BoardTouchable (true);
 	}

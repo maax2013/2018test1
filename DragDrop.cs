@@ -30,32 +30,32 @@ public class DragDrop : MonoBehaviour
 	public void readyDrag (Unit u)
 	{
 		cueUnit = u;
-		lastTileCoord = new Vector2Int (u.CurrentRow, u.CurrentColumn);
+		lastTileCoord = new Vector2Int (u.CurrentColumn, u.CurrentRow);
 	}
 
 	public void dragMove (Vector3 pos)
 	{
-		nextTileCoord = convertPosToTableCoor (pos);
+		nextTileCoord = convertPosToTableCoord (pos);
 //		print (nextTileCoord - lastTileCoord);
 		Vector2Int distance = nextTileCoord - lastTileCoord;
 		if (Mathf.Abs (distance.x) > 0 || Mathf.Abs (distance.y) > 0) {
 			if (OnMove != null) {
-				OnMove (new Vector2Int (distance.y, distance.x));
+				OnMove (new Vector2Int (distance.x, distance.y));
 			}
 		}
 		lastTileCoord = nextTileCoord;
-		cueUnit.setUnitCoord (nextTileCoord.y, nextTileCoord.x);
+		cueUnit.setUnitCoord (nextTileCoord.x, nextTileCoord.y);
 //		cueUnit.CurrentRow = nextTileCoord.x;
 //		cueUnit.CurrentColumn = nextTileCoord.y;
 	}
 
-	Vector2Int convertPosToTableCoor (Vector3 pos)
+	Vector2Int convertPosToTableCoord (Vector3 pos)
 	{
 		float tempX = pos.x - offX;
 		float tempY = pos.y - offY;
 		int tempColumn = Mathf.RoundToInt (tempX);
 		int tempRow = Mathf.RoundToInt (tempY);
-		Vector2Int tempCoord = new Vector2Int (tempRow, tempColumn);
+		Vector2Int tempCoord = new Vector2Int (tempColumn, tempRow);
 		return tempCoord;
 	}
 	

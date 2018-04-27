@@ -17,10 +17,10 @@ public class BoardBg : MonoBehaviour
 		
 	}
 
-	public void createBoardTiles_ByRowColumn (int row, int column)
+	public void createBoardTiles_ByRowColumn (int column, int row)
 	{
-		for (int r = 0; r < row; r++) {
-			for (int c = 0; c < column; c++) {
+		for (int c = 0; c < column; c++) {
+			for (int r = 0; r < row; r++) {
 				tempTileBG = Instantiate (cellBg, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
 				if ((r % 2 == 0 && c % 2 == 0) || (r % 2 != 0 && c % 2 != 0)) {
 					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [0];
