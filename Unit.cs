@@ -46,9 +46,8 @@ public class Unit : MonoBehaviour
 
 	public void initRandomUnit (int column, int row)
 	{
-		setUnitCoord (column, row);
 		TotalConnectedUnits = 1;
-
+		setUnitCoord (column, row);
 		randomId ();
 	}
 

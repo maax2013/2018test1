@@ -401,21 +401,86 @@ public class UnitsManager : MonoBehaviour
 		}
 	}
 
-	List<List<Unit>> getMatch4s_InGroup (List<Unit> group)
+	void remove_UnitsInSmallList_FromLargeList (Unit[] smallL, List<Unit> largeL)
 	{
-		return null;
+		foreach (var tempU in smallL) {
+			tryRemoveFromGroup (tempU, largeL);
+		}
 	}
 
-	bool isMatch4 (Unit u)
-	{
-		Unit connectedUnitRight = getSameIdUnit_Towards (u, new Vector2Int (1, 0));
-		Unit connectedUnitTop = getSameIdUnit_Towards (u, new Vector2Int (0, 1));
-		Unit connectedUnitTopRight = getSameIdUnit_Towards (u, new Vector2Int (1, 1));
+	//	List<List<Unit>> getMatch4s_InGroup (List<Unit> group)
+	//	{
+	//		return null;
+	//	}
 
-		if (connectedUnitRight && connectedUnitTop && connectedUnitTopRight) {
-			return true;
+
+
+
+
+	public void removeAll_match4s_OnBoard_beforeGameStart ()
+	{
+		List<Unit[]> candidatesGroups = new List<Unit[]> ();
+		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
+		while (candidatesGroups.Count > 0) {
+			resetUnitsInGroup (candidatesGroups);
+			candidatesGroups.Clear ();
+			addAll_Match4sOnBoard_ToGroup (candidatesGroups);
 		}
-		return false;
+
+	}
+
+	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)
+	{
+		List<Unit> allUnitsList = getAllUnitsList ();
+
+		while (allUnitsList.Count > 0) {
+			Unit tempU = allUnitsList [0];
+			Unit[] match4s_TopRight = getmatch4Units_towards (tempU, new Vector2Int (1, 1));
+			if (match4s_TopRight != null) {
+				candidatesGroups.Add (match4s_TopRight);
+				remove_UnitsInSmallList_FromLargeList (match4s_TopRight, allUnitsList);
+			} else {
+				tryRemoveFromGroup (tempU, allUnitsList);
+			}
+		}
+	}
+
+	void resetUnitsInGroup (List<Unit[]> candidatesGroups)
+	{
+		for (int i = 0; i < candidatesGroups.Count; i++) {
+			Unit[] match4Units = candidatesGroups [i];
+			foreach (Unit u in match4Units) {
+				u.randomId ();
+				u.testMark (false);//-----------------
+			}
+		}
+	}
+
+	List<Unit> getAllUnitsList ()
+	{
+		List<Unit> allUnitsList = new List<Unit> ();
+		foreach (var u in unitsTable) {
+			allUnitsList.Add (u);
+		}
+		return allUnitsList;
+	}
+
+
+	Unit[] getmatch4Units_towards (Unit u, Vector2Int diagonal)
+	{
+		Unit linkedUnit_corner = getSameIdUnit_Towards (u, diagonal);
+		Unit linkedUnit_side1 = getSameIdUnit_Towards (u, new Vector2Int (diagonal.x, 0));
+		Unit linkedUnit_side2 = getSameIdUnit_Towards (u, new Vector2Int (0, diagonal.y));
+
+		if (linkedUnit_corner && linkedUnit_side1 && linkedUnit_side2) {
+			/*make sure to put self in the first slot*/
+			Unit[] match4Group = new Unit[] { u, linkedUnit_corner, linkedUnit_side1, linkedUnit_side2 };
+			foreach (Unit U in match4Group) {
+				U.testMark (true);//----------------------------
+			}
+			return match4Group;
+		}
+		return null;
 	}
 
 
