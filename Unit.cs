@@ -33,7 +33,7 @@ public class Unit : MonoBehaviour
 
 	public List<Unit> blockGroup { get; set; }
 
-	//	bool isPartOfBigONE;
+	public int childOfBlocks;
 	//	int levelOfBigONE;
 
 	UnitType unitTypeCtr;
@@ -49,6 +49,7 @@ public class Unit : MonoBehaviour
 	{
 		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
+		childOfBlocks = 0;
 		setUnitCoord (column, row);
 
 		unitTypeCtr = GetComponent<UnitType> ();
@@ -119,7 +120,16 @@ public class Unit : MonoBehaviour
 
 	public void upgrade (int levels)
 	{
-		
+//		print ("upgrade");
+		if (unitTypeCtr.isUpgradable ()) {
+			unitTypeCtr.upgradeToNextTier ();
+			unitID = unitTypeCtr.getCurrentType ();
+			spriteObj.GetComponent<SpriteRenderer> ().sprite = unitTypeCtr.getCurrentSprite ();
+		} else {
+			//TODO:
+			//+++++++++++++++++
+		}
+
 	}
 
 	public void drop (int steps)

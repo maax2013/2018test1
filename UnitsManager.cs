@@ -498,6 +498,26 @@ public class UnitsManager : MonoBehaviour
 
 	}
 
+	public void collapseAll_match4s_OnBoard_beforeGameStart ()
+	{
+		List<Unit[]> candidatesGroups = new List<Unit[]> ();
+		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
+		if (candidatesGroups.Count > 0) {
+			upgradeUnitsInGroup (candidatesGroups);
+		}
+	}
+
+	void upgradeUnitsInGroup (List<Unit[]> candidatesGroups)
+	{
+		for (int i = 0; i < candidatesGroups.Count; i++) {
+			Unit[] match4Units = candidatesGroups [i];
+			foreach (Unit u in match4Units) {
+				u.upgrade (1);
+//				u.testMark (false);//-----------------
+			}
+		}
+	}
+
 	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)
 	{
 		List<Unit> allUnitsList = getAllUnitsList ();
@@ -507,6 +527,9 @@ public class UnitsManager : MonoBehaviour
 			Unit[] match4s_TopRight = getmatch4Units_towards (tempU, new Vector2Int (1, 1));
 			if (match4s_TopRight != null) {
 				candidatesGroups.Add (match4s_TopRight);
+				foreach (Unit U in match4s_TopRight) {
+					markMatch4Unit (U);//----------------------------
+				}
 				remove_UnitsInSmallList_FromLargeList (match4s_TopRight, allUnitsList);
 			} else {
 				tryRemoveFromGroup (tempU, allUnitsList);
@@ -541,15 +564,24 @@ public class UnitsManager : MonoBehaviour
 		Unit linkedUnit_side1 = getSameIdUnit_Towards (u, new Vector2Int (diagonal.x, 0));
 		Unit linkedUnit_side2 = getSameIdUnit_Towards (u, new Vector2Int (0, diagonal.y));
 
+
 		if (linkedUnit_corner && linkedUnit_side1 && linkedUnit_side2) {
-			/*make sure to put self in the first slot*/
-			Unit[] match4Group = new Unit[] { u, linkedUnit_corner, linkedUnit_side1, linkedUnit_side2 };
-			foreach (Unit U in match4Group) {
-				U.testMark (true);//----------------------------
+			/*make sure no overlaps*/
+			if (linkedUnit_corner.childOfBlocks < 1 &&
+			    linkedUnit_side1.childOfBlocks < 1 &&
+			    linkedUnit_side2.childOfBlocks < 1) {
+				/*make sure to put self in the first slot*/
+				Unit[] match4Group = new Unit[] { u, linkedUnit_corner, linkedUnit_side1, linkedUnit_side2 };
+				return match4Group;
 			}
-			return match4Group;
 		}
 		return null;
+	}
+
+	void markMatch4Unit (Unit u)
+	{
+		u.testMark (true);//----------------------------
+		u.childOfBlocks++;
 	}
 
 

@@ -38,7 +38,7 @@ public class UnitType : MonoBehaviour
 	int currentTier;
 	string currentType;
 	Sprite currentSprite;
-	bool isUpgradable;
+	bool upgradable;
 
 	public void init ()
 	{
@@ -48,7 +48,7 @@ public class UnitType : MonoBehaviour
 		allTypes = new List<TieredType[]> ();
 		TieredType[] subTypes;
 
-		for (int n = 0; n < typeNames.Count; n++) {
+		for (int n = 0; n < typeNames.Count - 1; n++) {
 			if (typeSpritesList [n].Length > 0) {
 				subTypes = new TieredType[typeSpritesList [n].Length];
 				for (int i = 0; i < typeSpritesList [n].Length; i++) {
@@ -71,7 +71,7 @@ public class UnitType : MonoBehaviour
 
 	public void upgradeToNextTier ()
 	{
-		if (isUpgradable) {
+		if (upgradable) {
 			currentTier++;
 			updateTypeInfo ();
 		}
@@ -87,9 +87,9 @@ public class UnitType : MonoBehaviour
 		return currentSprite;
 	}
 
-	public bool IsUpgradable ()
+	public bool isUpgradable ()
 	{
-		return isUpgradable;
+		return upgradable;
 	}
 
 	void updateTypeInfo ()
@@ -97,9 +97,9 @@ public class UnitType : MonoBehaviour
 		currentType = currentTypeGroup [currentTier].SubType;
 		currentSprite = currentTypeGroup [currentTier].TypeSprite;
 		if (currentTypeGroup.Length > currentTier + 1) {
-			isUpgradable = true;
+			upgradable = true;
 		} else {
-			isUpgradable = false;
+			upgradable = false;
 		}
 	}
 	
