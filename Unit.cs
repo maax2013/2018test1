@@ -36,7 +36,7 @@ public class Unit : MonoBehaviour
 	//	bool isPartOfBigONE;
 	//	int levelOfBigONE;
 
-
+	UnitType unitTypeCtr;
 
 
 	// Use this for initialization
@@ -50,6 +50,10 @@ public class Unit : MonoBehaviour
 		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
 		setUnitCoord (column, row);
+
+		unitTypeCtr = GetComponent<UnitType> ();
+		unitTypeCtr.init ();
+
 		randomId ();
 	}
 
@@ -61,10 +65,14 @@ public class Unit : MonoBehaviour
 
 	public void randomId ()
 	{
-		var rdmN = Random.Range (0, 3);
-		unitID = rdmN.ToString ();
+//		var rdmN = Random.Range (0, 3);
+//		unitID = rdmN.ToString ();
+//		spriteObj.GetComponent<SpriteRenderer> ().sprite = sprites [rdmN];
 
-		spriteObj.GetComponent<SpriteRenderer> ().sprite = sprites [rdmN];
+
+		unitTypeCtr.randomType ();
+		unitID = unitTypeCtr.getCurrentType ();
+		spriteObj.GetComponent<SpriteRenderer> ().sprite = unitTypeCtr.getCurrentSprite ();
 	}
 
 	public void updateCountText ()

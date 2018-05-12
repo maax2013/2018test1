@@ -9,7 +9,7 @@ public class InputControl : MonoBehaviour,  IPointerDownHandler, IBeginDragHandl
 	//	[SerializeField] Camera mainCam;
 	public bool inputEnabled = false;
 
-	public event System.Action<GameObject> OnTouch;
+	//	public event System.Action<GameObject> OnTouch;
 
 	public delegate void MyTouchEvent (GameObject obj, Vector3 pos);
 

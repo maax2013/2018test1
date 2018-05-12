@@ -23,9 +23,9 @@ public class BoardBg : MonoBehaviour
 			for (int r = 0; r < row; r++) {
 				tempTileBG = Instantiate (cellBg, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
 				if ((r % 2 == 0 && c % 2 == 0) || (r % 2 != 0 && c % 2 != 0)) {
-					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [0];
+					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [0];
 				} else {
-					cellBg.GetComponent<SpriteRenderer> ().sprite = sprites [1];
+					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [1];
 				}
 				tempTileBG.transform.SetParent (tileBgHolder, false);
 			}
