@@ -503,19 +503,62 @@ public class UnitsManager : MonoBehaviour
 		List<Unit[]> candidatesGroups = new List<Unit[]> ();
 		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
 		if (candidatesGroups.Count > 0) {
-			upgradeUnitsInGroup (candidatesGroups);
+			collapseUnitsInGroup (candidatesGroups);
 		}
 	}
 
-	void upgradeUnitsInGroup (List<Unit[]> candidatesGroups)
+	void collapseUnitsInGroup (List<Unit[]> candidatesGroups)
 	{
 		for (int i = 0; i < candidatesGroups.Count; i++) {
 			Unit[] match4Units = candidatesGroups [i];
-			foreach (Unit u in match4Units) {
-				u.upgrade (1);
-//				u.testMark (false);//-----------------
+//			foreach (Unit u in match4Units) {
+//				u.upgrade (1);
+////				u.testMark (false);//-----------------
+//			}
+			if (match4Units [0].IsUpgradable) {
+//				upgradeBlock (match4Units);
+				StartCoroutine (upgradeBlock (match4Units));
+			} else {
+				//TODO:
 			}
 		}
+	}
+
+	IEnumerator upgradeBlock (Unit[] blockUnits)
+	{
+		var rdmN = Random.Range (0, blockUnits.Length);
+		Unit targetU = blockUnits [rdmN];
+		List<Unit> otherUnits = new List<Unit> ();
+
+		for (int i = 0; i < blockUnits.Length; i++) {
+			if (i != rdmN) {
+				otherUnits.Add (blockUnits [i]);
+			}
+		}
+
+		float mergeTime = 0.5f;
+		float popTime = 0.5f;
+
+		foreach (var u in otherUnits) {
+			u.mergeTo_overTime (targetU.transform.localPosition, mergeTime);
+		}
+
+		yield return new WaitForSeconds (mergeTime + Time.deltaTime);
+
+		foreach (var u in otherUnits) {
+			u.reset ();
+		}
+		targetU.upgrade (1);
+		targetU.testMark (true);//----------------------------
+		targetU.popSprite_overTime (new Vector3 (1.3f, 1.3f, 1f), popTime);
+
+//		for (int i = 0; i < blockUnits.Length; i++) {
+//			if (i == rdmN) {
+////				blockUnits [i].upgrade (1);
+//			} else {
+//				blockUnits [i].mergeTo_overTime (blockUnits [rdmN].transform.localPosition, 0.6f);
+//			}
+//		}
 	}
 
 	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)
@@ -567,9 +610,9 @@ public class UnitsManager : MonoBehaviour
 
 		if (linkedUnit_corner && linkedUnit_side1 && linkedUnit_side2) {
 			/*make sure no overlaps*/
-			if (linkedUnit_corner.childOfBlocks < 1 &&
-			    linkedUnit_side1.childOfBlocks < 1 &&
-			    linkedUnit_side2.childOfBlocks < 1) {
+			if (linkedUnit_corner.BelongingBlocks < 1 &&
+			    linkedUnit_side1.BelongingBlocks < 1 &&
+			    linkedUnit_side2.BelongingBlocks < 1) {
 				/*make sure to put self in the first slot*/
 				Unit[] match4Group = new Unit[] { u, linkedUnit_corner, linkedUnit_side1, linkedUnit_side2 };
 				return match4Group;
@@ -580,8 +623,8 @@ public class UnitsManager : MonoBehaviour
 
 	void markMatch4Unit (Unit u)
 	{
-		u.testMark (true);//----------------------------
-		u.childOfBlocks++;
+//		u.testMark (true);//----------------------------
+		u.BelongingBlocks++;
 	}
 
 

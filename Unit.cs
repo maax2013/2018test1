@@ -7,7 +7,7 @@ public class Unit : MonoBehaviour
 	[SerializeField] GameObject textObj;
 	[SerializeField] GameObject glowObj;
 	[SerializeField] GameObject spriteObj;
-	[SerializeField] Sprite[] sprites;
+	//	[SerializeField] Sprite[] sprites;
 
 	string unitID;
 
@@ -19,6 +19,8 @@ public class Unit : MonoBehaviour
 			unitID = value;
 		}
 	}
+
+	public bool IsUpgradable { get; set; }
 
 	public int CurrentRow { get; set; }
 
@@ -33,10 +35,14 @@ public class Unit : MonoBehaviour
 
 	public List<Unit> blockGroup { get; set; }
 
-	public int childOfBlocks;
+	public int BelongingBlocks;
 	//	int levelOfBigONE;
 
 	UnitType unitTypeCtr;
+
+	Coroutine moveCoroutine;
+	Coroutine popCoroutine;
+	float mergeTime = 0.6f;
 
 
 	// Use this for initialization
@@ -49,7 +55,7 @@ public class Unit : MonoBehaviour
 	{
 		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
-		childOfBlocks = 0;
+		BelongingBlocks = 0;
 		setUnitCoord (column, row);
 
 		unitTypeCtr = GetComponent<UnitType> ();
@@ -66,15 +72,10 @@ public class Unit : MonoBehaviour
 
 	public void randomId ()
 	{
-//		var rdmN = Random.Range (0, 3);
-//		unitID = rdmN.ToString ();
-//		spriteObj.GetComponent<SpriteRenderer> ().sprite = sprites [rdmN];
-
-
 		unitTypeCtr.randomType ();
-		unitID = unitTypeCtr.getCurrentType ();
-		spriteObj.GetComponent<SpriteRenderer> ().sprite = unitTypeCtr.getCurrentSprite ();
+		updateUnitInfo ();
 	}
+
 
 	public void updateCountText ()
 	{
@@ -121,15 +122,72 @@ public class Unit : MonoBehaviour
 	public void upgrade (int levels)
 	{
 //		print ("upgrade");
-		if (unitTypeCtr.isUpgradable ()) {
+		if (IsUpgradable) {
 			unitTypeCtr.upgradeToNextTier ();
-			unitID = unitTypeCtr.getCurrentType ();
-			spriteObj.GetComponent<SpriteRenderer> ().sprite = unitTypeCtr.getCurrentSprite ();
+			updateUnitInfo ();
 		} else {
 			//TODO:
 			//+++++++++++++++++
 		}
 
+	}
+
+	public void mergeTo_overTime (Vector3 target, float mergeTime)
+	{
+//		if (moveCoroutine) {
+//			StopCoroutine (moveCoroutine);
+//		}
+		moveCoroutine = StartCoroutine (moveSpriteTo_overTime (target, mergeTime));
+
+	}
+
+	public void popSprite_overTime (Vector3 target, float popTime)
+	{
+		popCoroutine = StartCoroutine (popSpriteTo_overTime (target, popTime));
+	}
+
+	IEnumerator moveSpriteTo_overTime (Vector3 target, float duration)
+	{
+		float elapsedTime = 0;
+		Vector3 startingPos = transform.localPosition;
+		while (elapsedTime < duration) {
+			transform.localPosition = Vector3.Lerp (startingPos, target, (elapsedTime / duration));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localPosition = target;
+//		while (Vector3.Distance (transform.localPosition, target) > 0.1f) {
+//			transform.localPosition = Vector3.Lerp (transform.localPosition, target, mergeSpeed * Time.deltaTime);
+//			yield return null;
+//		}
+	}
+
+	IEnumerator popSpriteTo_overTime (Vector3 target, float duration)
+	{
+		float elapsedTime = 0;
+
+		float popUpTime = duration * 0.2f;
+		float pauseTime = duration * 0.3f;
+		float shrinkTime = duration * 0.5f;
+
+		Vector3 startingScale = transform.localScale;
+
+		while (elapsedTime < popUpTime) {
+			transform.localScale = Vector3.Lerp (startingScale, target, (elapsedTime / popUpTime));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localScale = target;
+
+		yield return new WaitForSeconds (pauseTime);
+
+		elapsedTime = 0;
+		while (elapsedTime < shrinkTime) {
+			transform.localScale = Vector3.Lerp (target, startingScale, (elapsedTime / shrinkTime));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localScale = startingScale;
 	}
 
 	public void drop (int steps)
@@ -139,7 +197,14 @@ public class Unit : MonoBehaviour
 
 	public void reset ()
 	{
-		
+		transform.localPosition = new Vector3 (100, 100, 0);//-------------------
+	}
+
+	void updateUnitInfo ()
+	{
+		unitID = unitTypeCtr.getCurrentType ();
+		IsUpgradable = unitTypeCtr.isUpgradable ();
+		spriteObj.GetComponent<SpriteRenderer> ().sprite = unitTypeCtr.getCurrentSprite ();
 	}
 	
 	// Update is called once per frame
