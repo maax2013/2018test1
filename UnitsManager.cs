@@ -5,8 +5,9 @@ using UnityEngine;
 public class UnitsManager : MonoBehaviour
 {
 	[SerializeField] GameObject unitPrefab;
-
 	[SerializeField] Transform unitsHolder;
+
+	Block blockCtr;
 
 	Unit tempUnit;
 
@@ -54,6 +55,14 @@ public class UnitsManager : MonoBehaviour
 	public void repositionUnitsHolder (float x, float y, float z)
 	{
 		unitsHolder.position = new Vector3 (x, y, z);
+	}
+
+	public void repositionBlocksHolder (float x, float y, float z)
+	{
+		blockCtr = GetComponent<Block> ();
+		blockCtr.repositionBlocksHolder (x, y, z);
+
+//		blockCtr.showBlockAt (new Vector3 (0, 0, 0));
 	}
 
 
@@ -509,19 +518,32 @@ public class UnitsManager : MonoBehaviour
 
 	void collapseUnitsInGroup (List<Unit[]> candidatesGroups)
 	{
+		List<Unit[]> blockGroups = new List<Unit[]> ();
+		List<Unit[]> clearGroups = new List<Unit[]> ();
+
 		for (int i = 0; i < candidatesGroups.Count; i++) {
 			Unit[] match4Units = candidatesGroups [i];
-//			foreach (Unit u in match4Units) {
-//				u.upgrade (1);
-////				u.testMark (false);//-----------------
-//			}
+
 			if (match4Units [0].IsUpgradable) {
-//				upgradeBlock (match4Units);
-				StartCoroutine (upgradeBlock (match4Units));
+				blockGroups.Add (match4Units);
 			} else {
-				//TODO:
+				clearGroups.Add (match4Units);
 			}
 		}
+		StartCoroutine (makeBlocks (blockGroups));
+		//TODO: cleargroups
+	}
+
+	IEnumerator makeBlocks (List<Unit[]> blockGroups)
+	{
+		int totalBlocksToMake = blockGroups.Count;
+		int index = 0;
+		while (index < totalBlocksToMake) {
+			StartCoroutine (upgradeBlock (blockGroups [index]));
+			index++;
+			yield return new WaitForSeconds (0.1f);
+		}
+		yield return new WaitForSeconds (0.1f);
 	}
 
 	IEnumerator upgradeBlock (Unit[] blockUnits)
@@ -542,6 +564,10 @@ public class UnitsManager : MonoBehaviour
 		foreach (var u in otherUnits) {
 			u.mergeTo_overTime (targetU.transform.localPosition, mergeTime);
 		}
+		/*since the first unit in blockUnits is the one at the bottom left, so the position of the block will be its x + half with, y + half height*/
+		Vector3 bottomLeftU = blockUnits [0].transform.localPosition;
+		Vector3 blockPos = new Vector3 (bottomLeftU.x + 0.5f, bottomLeftU.y + 0.5f, 0);
+		blockCtr.showBlockAt_overTime (blockPos, mergeTime + popTime);
 
 		yield return new WaitForSeconds (mergeTime + Time.deltaTime);
 
@@ -551,14 +577,6 @@ public class UnitsManager : MonoBehaviour
 		targetU.upgrade (1);
 		targetU.testMark (true);//----------------------------
 		targetU.popSprite_overTime (new Vector3 (1.3f, 1.3f, 1f), popTime);
-
-//		for (int i = 0; i < blockUnits.Length; i++) {
-//			if (i == rdmN) {
-////				blockUnits [i].upgrade (1);
-//			} else {
-//				blockUnits [i].mergeTo_overTime (blockUnits [rdmN].transform.localPosition, 0.6f);
-//			}
-//		}
 	}
 
 	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)

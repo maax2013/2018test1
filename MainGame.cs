@@ -25,13 +25,18 @@ public class MainGame : MonoBehaviour
 	{
 		boardBgCtr = GetComponent<BoardBg> ();
 		boardBgCtr.createBoardTiles_ByRowColumn (boardColumns, boardRows);
-		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 1f);
+
+		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 2f);
 	}
+
+
 
 	void initUnits ()
 	{
 		unitsManager = GetComponent<UnitsManager> ();
 		unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
+
+		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
 
 		unitsManager.collapseAll_match4s_OnBoard_beforeGameStart ();
