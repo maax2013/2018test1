@@ -30,19 +30,22 @@ public class Unit : MonoBehaviour
 
 	public List<Unit> BelongingGroup { get; set; }
 
+	public Vector2Int fallFrom { get; set; }
+
+	public Vector2Int fallTo { get; set; }
 
 	public List<List<Unit>> match4Groups { get; set; }
 
 	public List<Unit> blockGroup { get; set; }
 
-	public int BelongingBlocks;
+	[System.NonSerialized] public int BelongingBlocks;
 	//	int levelOfBigONE;
 
 	UnitType unitTypeCtr;
 
 	Coroutine moveCoroutine;
 	Coroutine popCoroutine;
-	float mergeTime = 0.6f;
+	float fallSpeed = 2f;
 
 
 	// Use this for initialization
@@ -132,18 +135,31 @@ public class Unit : MonoBehaviour
 
 	}
 
-	public void mergeTo_overTime (Vector3 target, float mergeTime)
+	public void mergeTo_overTime_thenGone (Vector3 target, float mergeTime)
 	{
 //		if (moveCoroutine) {
 //			StopCoroutine (moveCoroutine);
 //		}
-		moveCoroutine = StartCoroutine (moveSpriteTo_overTime (target, mergeTime));
-
+//		moveCoroutine = StartCoroutine (moveSpriteTo_overTime (target, mergeTime));
+		moveCoroutine = StartCoroutine (mergeTo_overTime_thenInactive (target, mergeTime));
 	}
 
 	public void popSprite_overTime (Vector3 target, float popTime)
 	{
 		popCoroutine = StartCoroutine (popSpriteTo_overTime (target, popTime));
+	}
+
+	IEnumerator mergeTo_overTime_thenInactive (Vector3 target, float duration)
+	{
+		float elapsedTime = 0;
+		Vector3 startingPos = transform.localPosition;
+		while (elapsedTime < duration) {
+			transform.localPosition = Vector3.Lerp (startingPos, target, (elapsedTime / duration));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localPosition = target;
+		gameObject.SetActive (false);
 	}
 
 	IEnumerator moveSpriteTo_overTime (Vector3 target, float duration)
@@ -156,10 +172,6 @@ public class Unit : MonoBehaviour
 			yield return new WaitForEndOfFrame ();
 		}
 		transform.localPosition = target;
-//		while (Vector3.Distance (transform.localPosition, target) > 0.1f) {
-//			transform.localPosition = Vector3.Lerp (transform.localPosition, target, mergeSpeed * Time.deltaTime);
-//			yield return null;
-//		}
 	}
 
 	IEnumerator popSpriteTo_overTime (Vector3 target, float duration)
@@ -190,14 +202,28 @@ public class Unit : MonoBehaviour
 		transform.localScale = startingScale;
 	}
 
-	public void drop (int steps)
+	public void fall ()
 	{
-		
+		Vector3 localPos = transform.localPosition;
+		localPos.x = fallFrom.x;
+		localPos.y = fallFrom.y;
+		transform.localPosition = localPos;
+
+		localPos.x = fallTo.x;
+		localPos.y = fallTo.y;
+		Vector3 targetPos = localPos;
+
+		StartCoroutine (moveSpriteTo_overTime (targetPos, fallSpeed));
 	}
 
 	public void reset ()
 	{
 		transform.localPosition = new Vector3 (100, 100, 0);//-------------------
+	}
+
+	public void ghost ()
+	{
+		gameObject.SetActive (false);//~~~~~~~~~~~~~~
 	}
 
 	void updateUnitInfo ()

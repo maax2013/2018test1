@@ -538,15 +538,23 @@ public class UnitsManager : MonoBehaviour
 	{
 		int totalBlocksToMake = blockGroups.Count;
 		int index = 0;
+		float upgradeBlockTime = 1f;//~~~~~~~~~~~~~~~~~~~~~~~~
+		float eachDelayTime = 0.2f;//~~~~~~~~~~~~~~~~~~~~~~
+		float accumulatedTime = upgradeBlockTime;
+
 		while (index < totalBlocksToMake) {
-			StartCoroutine (upgradeBlock (blockGroups [index]));
+			StartCoroutine (upgradeBlock (blockGroups [index], upgradeBlockTime));
 			index++;
-			yield return new WaitForSeconds (0.1f);
+			accumulatedTime += eachDelayTime;
+			yield return new WaitForSeconds (eachDelayTime);
 		}
-		yield return new WaitForSeconds (0.1f);
+
+		yield return new WaitForSeconds (accumulatedTime + 1f);
+
+		GetComponent<BoardFall> ().fall (unitsTable);
 	}
 
-	IEnumerator upgradeBlock (Unit[] blockUnits)
+	IEnumerator upgradeBlock (Unit[] blockUnits, float duration)
 	{
 		var rdmN = Random.Range (0, blockUnits.Length);
 		Unit targetU = blockUnits [rdmN];
@@ -558,22 +566,22 @@ public class UnitsManager : MonoBehaviour
 			}
 		}
 
-		float mergeTime = 0.5f;
-		float popTime = 0.5f;
+		float mergeTime = duration * 0.5f;
+		float popTime = duration * 0.5f;
 
 		foreach (var u in otherUnits) {
-			u.mergeTo_overTime (targetU.transform.localPosition, mergeTime);
+			u.mergeTo_overTime_thenGone (targetU.transform.localPosition, mergeTime);
 		}
 		/*since the first unit in blockUnits is the one at the bottom left, so the position of the block will be its x + half with, y + half height*/
 		Vector3 bottomLeftU = blockUnits [0].transform.localPosition;
 		Vector3 blockPos = new Vector3 (bottomLeftU.x + 0.5f, bottomLeftU.y + 0.5f, 0);
 		blockCtr.showBlockAt_overTime (blockPos, mergeTime + popTime);
 
-		yield return new WaitForSeconds (mergeTime + Time.deltaTime);
+		yield return new WaitForSeconds (mergeTime);
 
-		foreach (var u in otherUnits) {
-			u.reset ();
-		}
+//		foreach (var u in otherUnits) {
+//			u.ghost ();//~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//		}
 		targetU.upgrade (1);
 		targetU.testMark (true);//----------------------------
 		targetU.popSprite_overTime (new Vector3 (1.3f, 1.3f, 1f), popTime);
