@@ -45,7 +45,7 @@ public class Unit : MonoBehaviour
 
 	Coroutine moveCoroutine;
 	Coroutine popCoroutine;
-	float fallSpeed = 2f;
+	float fallSpeed = 0.2f;
 
 
 	// Use this for initialization
@@ -213,12 +213,17 @@ public class Unit : MonoBehaviour
 		localPos.y = fallTo.y;
 		Vector3 targetPos = localPos;
 
+		//TODO: calculate speed based on fall distance
 		StartCoroutine (moveSpriteTo_overTime (targetPos, fallSpeed));
 	}
 
 	public void reset ()
 	{
-		transform.localPosition = new Vector3 (100, 100, 0);//-------------------
+		TotalConnectedUnits = 1;
+		blockGroup = new List<Unit> ();
+		BelongingBlocks = 0;
+
+		randomId ();
 	}
 
 	public void ghost ()

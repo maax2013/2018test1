@@ -549,7 +549,8 @@ public class UnitsManager : MonoBehaviour
 			yield return new WaitForSeconds (eachDelayTime);
 		}
 
-		yield return new WaitForSeconds (accumulatedTime + 1f);
+		yield return new WaitForSeconds (accumulatedTime + 1f);//~~~~~~~~~~~~~~~~~~~
+		//TODO: listen to last block complete, then start to fall
 
 		GetComponent<BoardFall> ().fall (unitsTable);
 	}
