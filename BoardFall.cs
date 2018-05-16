@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BoardFall : MonoBehaviour
 {
-	public event System.Action onAllFallDone;
+	public event System.Action<Unit[,]> onAllFallDone;
 
 	Unit[,] originalTable;
 	Unit[,] unitsTable;
@@ -20,6 +20,7 @@ public class BoardFall : MonoBehaviour
 
 	public void fall (Unit[,] units)
 	{
+//		StopAllCoroutines ();
 //		print ("fall");
 		originalTable = units;
 
@@ -126,9 +127,11 @@ public class BoardFall : MonoBehaviour
 			yield return new WaitForEndOfFrame ();
 		}
 
+		yield return new WaitForSeconds (2f);
+
 		print ("falling done!");
 		if (onAllFallDone != null) {
-			onAllFallDone ();
+			onAllFallDone (originalTable);
 		}
 	}
 
