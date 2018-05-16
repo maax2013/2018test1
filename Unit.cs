@@ -26,7 +26,7 @@ public class Unit : MonoBehaviour
 
 	public int CurrentColumn { get; set; }
 
-	public int TotalConnectedUnits { get; set; }
+	//	public int TotalConnectedUnits { get; set; }
 
 	public List<Unit> BelongingGroup { get; set; }
 
@@ -37,6 +37,12 @@ public class Unit : MonoBehaviour
 	public List<List<Unit>> match4Groups { get; set; }
 
 	public List<Unit> blockGroup { get; set; }
+
+	//	public delegate void MyUnitEvent0 ();
+	//	public event MyUnitEvent0 onFallDone;
+
+	public event System.Action<Unit> onFallDone;
+	public event System.Action onMergeDone;
 
 	[System.NonSerialized] public int BelongingBlocks;
 	//	int levelOfBigONE;
@@ -56,7 +62,7 @@ public class Unit : MonoBehaviour
 
 	public void initUnit (int column, int row)
 	{
-		TotalConnectedUnits = 1;
+//		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
 		BelongingBlocks = 0;
 		setUnitCoord (column, row);
@@ -87,7 +93,8 @@ public class Unit : MonoBehaviour
 
 	public void debugText (string t)
 	{
-		textObj.GetComponent<TextMesh> ().text += t;
+		textObj.SetActive (true);
+		textObj.GetComponent<TextMesh> ().text = t;
 	}
 
 	public void startDrag ()
@@ -159,19 +166,11 @@ public class Unit : MonoBehaviour
 			yield return new WaitForEndOfFrame ();
 		}
 		transform.localPosition = target;
+		reset ();
 		gameObject.SetActive (false);
-	}
-
-	IEnumerator moveSpriteTo_overTime (Vector3 target, float duration)
-	{
-		float elapsedTime = 0;
-		Vector3 startingPos = transform.localPosition;
-		while (elapsedTime < duration) {
-			transform.localPosition = Vector3.Lerp (startingPos, target, (elapsedTime / duration));
-			elapsedTime += Time.deltaTime;
-			yield return new WaitForEndOfFrame ();
+		if (onMergeDone != null) {
+			onMergeDone ();
 		}
-		transform.localPosition = target;
 	}
 
 	IEnumerator popSpriteTo_overTime (Vector3 target, float duration)
@@ -200,6 +199,10 @@ public class Unit : MonoBehaviour
 			yield return new WaitForEndOfFrame ();
 		}
 		transform.localScale = startingScale;
+		clearConnections ();
+		if (onMergeDone != null) {
+			onMergeDone ();
+		}
 	}
 
 	public void fall ()
@@ -214,22 +217,48 @@ public class Unit : MonoBehaviour
 		Vector3 targetPos = localPos;
 
 		//TODO: calculate speed based on fall distance
-		StartCoroutine (moveSpriteTo_overTime (targetPos, fallSpeed));
+		StartCoroutine (fallTo_overTime (targetPos, fallSpeed));
+	}
+
+	IEnumerator fallTo_overTime (Vector3 target, float duration)
+	{
+		float elapsedTime = 0;
+		Vector3 startingPos = transform.localPosition;
+		while (elapsedTime < duration) {
+			transform.localPosition = Vector3.Lerp (startingPos, target, (elapsedTime / duration));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localPosition = target;
+		setUnitCoord (fallTo.x, fallTo.y);
+
+		if (onFallDone != null) {
+			onFallDone (this);
+		}
 	}
 
 	public void reset ()
 	{
-		TotalConnectedUnits = 1;
-		blockGroup = new List<Unit> ();
-		BelongingBlocks = 0;
-
+		clearConnections ();
 		randomId ();
 	}
 
-	public void ghost ()
+	void clearConnections ()
 	{
-		gameObject.SetActive (false);//~~~~~~~~~~~~~~
+//		TotalConnectedUnits = 1;
+		blockGroup.Clear ();
+		BelongingBlocks = 0;
 	}
+
+	public void showDebugCoord ()
+	{
+		debugText (CurrentColumn.ToString () + ":" + CurrentRow.ToString ());
+	}
+
+	//	public void ghost ()
+	//	{
+	//		gameObject.SetActive (false);//~~~~~~~~~~~~~~
+	//	}
 
 	void updateUnitInfo ()
 	{

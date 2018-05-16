@@ -66,75 +66,75 @@ public class UnitsManager : MonoBehaviour
 	}
 
 
-	public void markAll_linkedUnitsGroups ()
-	{
-		/*check every unit for links. put all linked units into a group, and count total members in that group.*/
-		List<Unit> unitsToCheck = new List<Unit> ();
-
-		foreach (var u in unitsTable) {
-			unitsToCheck.Add (u);
-		}
-//		print (unitsToCheck.Count);
-		while (unitsToCheck.Count > 0) {
-			List<Unit> linkedUnits = get_LinkedUnitsGroup_of (unitsToCheck [0]);
-			remove_UnitsInSmallList_FromLargeList (linkedUnits, unitsToCheck);
-		}
-	}
-
-	List<Unit> get_LinkedUnitsGroup_of (Unit u)
-	{
-		List<Unit> unitsForFurtherCheck = new List<Unit> ();
-		List<Unit> linkedUnits = new List<Unit> ();
-
-		tryAddToGroup (u, linkedUnits);
-
-		tryLinkAdjacents (u, unitsForFurtherCheck, linkedUnits);
-
-		if (unitsForFurtherCheck.Count > 0) {
-			extendLinks (unitsForFurtherCheck, linkedUnits);
-		}
-		if (linkedUnits.Count > 0) {
-			foreach (var unit in linkedUnits) {
-				unit.TotalConnectedUnits = linkedUnits.Count;
-				unit.BelongingGroup = linkedUnits;
-				unit.updateCountText ();
-			}
-		}
-		return linkedUnits;
-	}
-
-	void tryLinkAdjacents (Unit u, List<Unit> moreToCheck, List<Unit> linkedUnits)
-	{
-		tryMakeLinkTowards (u, new Vector2Int (0, 1), moreToCheck, linkedUnits);
-		tryMakeLinkTowards (u, new Vector2Int (0, -1), moreToCheck, linkedUnits);
-		tryMakeLinkTowards (u, new Vector2Int (-1, 0), moreToCheck, linkedUnits);
-		tryMakeLinkTowards (u, new Vector2Int (1, 0), moreToCheck, linkedUnits);
-
-		tryRemoveFromGroup (u, moreToCheck);
-	}
-
-	void tryMakeLinkTowards (Unit u, Vector2Int dir, List<Unit> moreToCheck, List<Unit> linkedUnits)
-	{
-		Unit tryLinkUnit = getSameIdUnit_Towards (u, dir);
-		if (tryLinkUnit == null || tryLinkUnit.TotalConnectedUnits > 1) {
-			return;
-		} else {
-			u.TotalConnectedUnits += 1;
-			tryLinkUnit.TotalConnectedUnits += 1;
-			tryAddToGroup (tryLinkUnit, linkedUnits);
-			tryAddToGroup (tryLinkUnit, moreToCheck);
-		}
-	}
-
-	void extendLinks (List<Unit> moreToCheck, List<Unit> linkedUnits)
-	{
-		while (moreToCheck.Count > 0) {
-			tryLinkAdjacents (moreToCheck [0], moreToCheck, linkedUnits);
-		}
-	}
-
-
-
+	//	public void markAll_linkedUnitsGroups ()
+	//	{
+	//		/*check every unit for links. put all linked units into a group, and count total members in that group.*/
+	//		List<Unit> unitsToCheck = new List<Unit> ();
+	//
+	//		foreach (var u in unitsTable) {
+	//			unitsToCheck.Add (u);
+	//		}
+	////		print (unitsToCheck.Count);
+	//		while (unitsToCheck.Count > 0) {
+	//			List<Unit> linkedUnits = get_LinkedUnitsGroup_of (unitsToCheck [0]);
+	//			remove_UnitsInSmallList_FromLargeList (linkedUnits, unitsToCheck);
+	//		}
+	//	}
+	//
+	//	List<Unit> get_LinkedUnitsGroup_of (Unit u)
+	//	{
+	//		List<Unit> unitsForFurtherCheck = new List<Unit> ();
+	//		List<Unit> linkedUnits = new List<Unit> ();
+	//
+	//		tryAddToGroup (u, linkedUnits);
+	//
+	//		tryLinkAdjacents (u, unitsForFurtherCheck, linkedUnits);
+	//
+	//		if (unitsForFurtherCheck.Count > 0) {
+	//			extendLinks (unitsForFurtherCheck, linkedUnits);
+	//		}
+	//		if (linkedUnits.Count > 0) {
+	//			foreach (var unit in linkedUnits) {
+	//				unit.TotalConnectedUnits = linkedUnits.Count;
+	//				unit.BelongingGroup = linkedUnits;
+	//				unit.updateCountText ();
+	//			}
+	//		}
+	//		return linkedUnits;
+	//	}
+	//
+	//	void tryLinkAdjacents (Unit u, List<Unit> moreToCheck, List<Unit> linkedUnits)
+	//	{
+	//		tryMakeLinkTowards (u, new Vector2Int (0, 1), moreToCheck, linkedUnits);
+	//		tryMakeLinkTowards (u, new Vector2Int (0, -1), moreToCheck, linkedUnits);
+	//		tryMakeLinkTowards (u, new Vector2Int (-1, 0), moreToCheck, linkedUnits);
+	//		tryMakeLinkTowards (u, new Vector2Int (1, 0), moreToCheck, linkedUnits);
+	//
+	//		tryRemoveFromGroup (u, moreToCheck);
+	//	}
+	//
+	//	void tryMakeLinkTowards (Unit u, Vector2Int dir, List<Unit> moreToCheck, List<Unit> linkedUnits)
+	//	{
+	//		Unit tryLinkUnit = getSameIdUnit_Towards (u, dir);
+	//		if (tryLinkUnit == null || tryLinkUnit.TotalConnectedUnits > 1) {
+	//			return;
+	//		} else {
+	//			u.TotalConnectedUnits += 1;
+	//			tryLinkUnit.TotalConnectedUnits += 1;
+	//			tryAddToGroup (tryLinkUnit, linkedUnits);
+	//			tryAddToGroup (tryLinkUnit, moreToCheck);
+	//		}
+	//	}
+	//
+	//	void extendLinks (List<Unit> moreToCheck, List<Unit> linkedUnits)
+	//	{
+	//		while (moreToCheck.Count > 0) {
+	//			tryLinkAdjacents (moreToCheck [0], moreToCheck, linkedUnits);
+	//		}
+	//	}
+	//
+	//
+	//
 
 
 
@@ -507,12 +507,14 @@ public class UnitsManager : MonoBehaviour
 
 	}
 
-	public void collapseAll_match4s_OnBoard_beforeGameStart ()
+	public void collapseAll_matches_OnBoard ()
 	{
 		List<Unit[]> candidatesGroups = new List<Unit[]> ();
 		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
 		if (candidatesGroups.Count > 0) {
 			collapseUnitsInGroup (candidatesGroups);
+		} else {
+			readyForInteraction ();
 		}
 	}
 
@@ -537,25 +539,32 @@ public class UnitsManager : MonoBehaviour
 	IEnumerator makeBlocks (List<Unit[]> blockGroups)
 	{
 		int totalBlocksToMake = blockGroups.Count;
+//		print (totalBlocksToMake);
+		int totalCompletion = 0;
 		int index = 0;
-		float upgradeBlockTime = 1f;//~~~~~~~~~~~~~~~~~~~~~~~~
+		float upgradeBlockTime = 3f;//~~~~~~~~~~~~~~~~~~~~~~~~
 		float eachDelayTime = 0.2f;//~~~~~~~~~~~~~~~~~~~~~~
-		float accumulatedTime = upgradeBlockTime;
 
 		while (index < totalBlocksToMake) {
-			StartCoroutine (upgradeBlock (blockGroups [index], upgradeBlockTime));
+			StartCoroutine (upgradeBlock (blockGroups [index], upgradeBlockTime, () => {
+				totalCompletion++;
+//				print (totalCompletion);
+			}));
 			index++;
-			accumulatedTime += eachDelayTime;
 			yield return new WaitForSeconds (eachDelayTime);
 		}
 
-		yield return new WaitForSeconds (accumulatedTime + 1f);//~~~~~~~~~~~~~~~~~~~
-		//TODO: listen to last block complete, then start to fall
-
+		while (totalCompletion < totalBlocksToMake) {
+			yield return new WaitForEndOfFrame ();
+		}
+		GetComponent<BoardFall> ().onAllFallDone += delegate {
+			debugBoard ();
+//			collapseAll_matches_OnBoard ();
+		};
 		GetComponent<BoardFall> ().fall (unitsTable);
 	}
 
-	IEnumerator upgradeBlock (Unit[] blockUnits, float duration)
+	IEnumerator upgradeBlock (Unit[] blockUnits, float duration, System.Action callback)
 	{
 		var rdmN = Random.Range (0, blockUnits.Length);
 		Unit targetU = blockUnits [rdmN];
@@ -567,10 +576,18 @@ public class UnitsManager : MonoBehaviour
 			}
 		}
 
+		int totalUnitsToAnimate = blockUnits.Length;
+		int totalCompletions = 0;
+
+		System.Action checkTotalCompletions = () => {
+			totalCompletions++;
+		};
+
 		float mergeTime = duration * 0.5f;
 		float popTime = duration * 0.5f;
 
 		foreach (var u in otherUnits) {
+			u.onMergeDone += checkTotalCompletions;
 			u.mergeTo_overTime_thenGone (targetU.transform.localPosition, mergeTime);
 		}
 		/*since the first unit in blockUnits is the one at the bottom left, so the position of the block will be its x + half with, y + half height*/
@@ -580,12 +597,41 @@ public class UnitsManager : MonoBehaviour
 
 		yield return new WaitForSeconds (mergeTime);
 
-//		foreach (var u in otherUnits) {
-//			u.ghost ();//~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//		}
 		targetU.upgrade (1);
 		targetU.testMark (true);//----------------------------
+		targetU.onMergeDone += checkTotalCompletions;
 		targetU.popSprite_overTime (new Vector3 (1.3f, 1.3f, 1f), popTime);
+
+//		yield return new WaitForSeconds (popTime + Time.deltaTime);
+		while (totalCompletions < totalUnitsToAnimate) {
+			yield return new WaitForEndOfFrame ();
+		}
+		callback ();
+	}
+
+	//	void checkTotalCompletions (Unit u)
+	//	{
+	////		//		print (u);
+	////		updateCoord_onOriginalTable (u, originalTable);
+	////		totalCompletions++;
+	////		//		print (totalCompletions);
+	//	}
+
+	//	void handleOnAllFallDone ()
+	//	{
+	//		readyForInteraction();
+	//	}
+	void debugBoard ()
+	{
+		foreach (var u in unitsTable) {
+			u.showDebugCoord ();
+//			u.debugText (u.BelongingBlocks.ToString ());
+		}
+	}
+
+	void readyForInteraction ()
+	{
+		print ("ready!");
 	}
 
 	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)

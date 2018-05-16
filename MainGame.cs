@@ -39,7 +39,7 @@ public class MainGame : MonoBehaviour
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
 
-		unitsManager.collapseAll_match4s_OnBoard_beforeGameStart ();
+		unitsManager.collapseAll_matches_OnBoard ();
 //		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();
 //		unitsManager.markAll_linkedUnitsGroups ();
 		//		unitsManager.checkMatch4s_OnBoard ();

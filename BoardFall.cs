@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class BoardFall : MonoBehaviour
 {
+	public event System.Action onAllFallDone;
+
+	Unit[,] originalTable;
 	Unit[,] unitsTable;
 	static int? firstEmpty;
 
@@ -12,9 +15,14 @@ public class BoardFall : MonoBehaviour
 	List<int> skyfallColumns = new List<int> ();
 	List<Unit> reusableUnits = new List<Unit> ();
 
+	int totalFallingUnits = 0;
+	int totalCompletions = 0;
+
 	public void fall (Unit[,] units)
 	{
 //		print ("fall");
+		originalTable = units;
+
 		readyToFallGroups.Clear ();
 		reusableUnits.Clear ();
 		skyfallColumns.Clear ();
@@ -53,9 +61,6 @@ public class BoardFall : MonoBehaviour
 //				print (readyToFallGroups.Count + "==");
 				skyfallColumns.Add (x);
 			}
-
-
-				
 		}
 	}
 
@@ -63,10 +68,9 @@ public class BoardFall : MonoBehaviour
 	{
 //		print ("==================");
 //		print (readyToFallGroups.Count + "==");
-////		foreach (var item in readyToFallGroups) {
-////			print (item);
-//////			print (item [0].CurrentColumn);
-////		}
+//		foreach (var item in readyToFallGroups) {
+//			print (item.Count);
+//		}
 
 		int skyfallStack;
 		int fallingColumn;
@@ -85,7 +89,7 @@ public class BoardFall : MonoBehaviour
 			for (int i = 0; i < emptyCellsInColumn; i++) {
 				tempU = getReusableUnit ();
 //				print (tempU);
-				tempU.reset ();
+//				tempU.reset ();
 				skyfall_y = boardHeight + skyfallStack;
 				tempU.fallFrom = new Vector2Int (fallingColumn, skyfall_y);
 				tempU.fallTo = new Vector2Int (fallingColumn, skyfall_y - emptyCellsInColumn);
@@ -93,24 +97,6 @@ public class BoardFall : MonoBehaviour
 				skyfallStack++;
 			}
 		}
-
-//		foreach (var columnUnits in readyToFallGroups) {
-//			skyfallStack = 0;
-//			fallingColumn = columnUnits [0].CurrentColumn;
-//			print (fallingColumn);
-//			emptyCellsInColumn = getEmptyCellCount_inColumn (fallingColumn, unitsTable);
-////			print (emptyCellsInColumn);
-//			for (int i = 0; i < emptyCellsInColumn; i++) {
-////				tempU = getReusableUnit ();
-////				print (tempU);
-////				tempU.reset ();
-////				skyfall_y = boardHeight + skyfallStack;
-////				tempU.fallFrom = new Vector2Int (fallingColumn, skyfall_y);
-////				tempU.fallTo = new Vector2Int (fallingColumn, skyfall_y - emptyCellsInColumn);
-////				columnUnits.Add (tempU);
-////				skyfallStack++;
-//			}
-//		}
 	}
 
 	IEnumerator unitsFall ()
@@ -121,11 +107,14 @@ public class BoardFall : MonoBehaviour
 //			print (item.Count);
 //			//			print (item [0].CurrentColumn);
 //		}
-
-		float elapsedTime = 0;
+		totalFallingUnits = 0;
+		totalCompletions = 0;
+		totalFallingUnits = countAllUnitsInNestedList (readyToFallGroups);
+//		print (totalFallingUnits);
 		foreach (var readyToFallUnits in readyToFallGroups) {
 			while (readyToFallUnits.Count > 0) {
 				readyToFallUnits [0].gameObject.SetActive (true);
+				readyToFallUnits [0].onFallDone += checkTotalCompletions;
 				readyToFallUnits [0].fall ();
 				readyToFallUnits.RemoveAt (0);
 				//			yield return new WaitForSeconds (0.05f);
@@ -133,7 +122,40 @@ public class BoardFall : MonoBehaviour
 			}
 		}
 
-		yield return new WaitForSeconds (0.05f);
+		while (totalCompletions < totalFallingUnits) {
+			yield return new WaitForEndOfFrame ();
+		}
+
+		print ("falling done!");
+		if (onAllFallDone != null) {
+			onAllFallDone ();
+		}
+	}
+
+	int countAllUnitsInNestedList (List<List<Unit>> nestedList)
+	{
+		int total = 0;
+		foreach (var l in nestedList) {
+			foreach (var u in l) {
+				total++;
+			}
+		}
+		return total;
+	}
+
+	void checkTotalCompletions (Unit u)
+	{
+//		print (u);
+		updateCoord_onOriginalTable (u, originalTable);
+		totalCompletions++;
+//		print (totalCompletions);
+	}
+
+	void updateCoord_onOriginalTable (Unit u, Unit[,] originalTable)
+	{
+		int coordX = u.CurrentColumn;
+		int coordY = u.CurrentRow;
+		originalTable [coordX, coordY] = u;
 	}
 
 	Unit[,] copyTable (Unit[,] fromT, Unit[,] toT)
