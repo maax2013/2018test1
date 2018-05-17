@@ -8,6 +8,7 @@ public class UnitsManager : MonoBehaviour
 	[SerializeField] Transform unitsHolder;
 
 	Block blockCtr;
+	BoardFall boardFall;
 
 	Unit tempUnit;
 
@@ -21,12 +22,12 @@ public class UnitsManager : MonoBehaviour
 
 	Unit cueUnit;
 
-
-	// Use this for initialization
-	void Start ()
+	public void init ()
 	{
-		
+		blockCtr = GetComponent<Block> ();
+		boardFall = GetComponent<BoardFall> ();
 	}
+
 
 	public void createUnits_ByRowColumn (int column, int row)
 	{
@@ -59,7 +60,7 @@ public class UnitsManager : MonoBehaviour
 
 	public void repositionBlocksHolder (float x, float y, float z)
 	{
-		blockCtr = GetComponent<Block> ();
+//		blockCtr = GetComponent<Block> ();
 		blockCtr.repositionBlocksHolder (x, y, z);
 
 //		blockCtr.showBlockAt (new Vector3 (0, 0, 0));
@@ -79,6 +80,7 @@ public class UnitsManager : MonoBehaviour
 //			inputCtr.OnTouch += HandleOnTouch;
 			DragDrop dragDrop = GetComponent<DragDrop> ();
 			dragDrop.init (unitsTable);
+			InputControl.onDragStart -= onDragStart;
 			InputControl.onDragStart += onDragStart;
 //			InputControl.onDrag += onDrag;
 //			InputControl.onDragEnd += onDragEnd;
@@ -94,6 +96,7 @@ public class UnitsManager : MonoBehaviour
 	void onDragEnd (GameObject obj, Vector3 pos)
 	{
 		dragDropDone ();
+		collapseAll_matches_OnBoard ();
 	}
 
 	void dragDropDone ()
@@ -133,8 +136,11 @@ public class UnitsManager : MonoBehaviour
 			cueUnit.startDrag ();
 			DragDrop dragDrop = GetComponent<DragDrop> ();
 			dragDrop.readyDrag (cueUnit);
+			InputControl.onDrag -= onDrag;
 			InputControl.onDrag += onDrag;
+			InputControl.onDragEnd -= onDragEnd;
 			InputControl.onDragEnd += onDragEnd;
+			dragDrop.OnMove -= switchUnit_Towards;
 			dragDrop.OnMove += switchUnit_Towards;
 		}
 	}
@@ -197,8 +203,12 @@ public class UnitsManager : MonoBehaviour
 
 	public void collapseAll_matches_OnBoard ()
 	{
+//		print (boardFall.onAllFallDone);
+		switch_BoardTouchable (false);
+
 		List<Unit[]> candidatesGroups = new List<Unit[]> ();
 		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
+//		print (candidatesGroups.Count);
 		if (candidatesGroups.Count > 0) {
 			collapseUnitsInGroup (candidatesGroups);
 		} else {
@@ -230,7 +240,7 @@ public class UnitsManager : MonoBehaviour
 //		print (totalBlocksToMake);
 		int totalCompletion = 0;
 		int index = 0;
-		float upgradeBlockTime = 3f;//~~~~~~~~~~~~~~~~~~~~~~~~
+		float upgradeBlockTime = 0.8f;//~~~~~~~~~~~~~~~~~~~~~~~~
 		float eachDelayTime = 0.2f;//~~~~~~~~~~~~~~~~~~~~~~
 
 		while (index < totalBlocksToMake) {
@@ -245,13 +255,25 @@ public class UnitsManager : MonoBehaviour
 		while (totalCompletion < totalBlocksToMake) {
 			yield return new WaitForEndOfFrame ();
 		}
-		System.Action<Unit[,]> handleOnAllFallDone = (Unit[,] originalTable) => {
-			unitsTable = originalTable;
-			debugBoard ();
-			collapseAll_matches_OnBoard ();
-		};
-		GetComponent<BoardFall> ().onAllFallDone += handleOnAllFallDone;
-		GetComponent<BoardFall> ().fall (unitsTable);
+
+//		System.Action<Unit[,]> handleOnAllFallDone = (Unit[,] originalTable) => {
+//			unitsTable = originalTable;
+//			debugBoard ();
+//			print ("fire");
+//			collapseAll_matches_OnBoard ();//++++++++++++++++++++
+//		};
+		boardFall.onAllFallDone -= handleOnAllFallDone;
+		boardFall.onAllFallDone += handleOnAllFallDone;
+		boardFall.fall (unitsTable);
+//		boardFall.fall_1 (unitsTable);
+	}
+
+	void handleOnAllFallDone (Unit[,] originalTable)
+	{
+		unitsTable = originalTable;
+//		debugBoard ();
+//		print ("fire");
+		collapseAll_matches_OnBoard ();//++++++++++++++++++++
 	}
 
 	IEnumerator upgradeBlock (Unit[] blockUnits, float duration, System.Action callback)
@@ -277,6 +299,7 @@ public class UnitsManager : MonoBehaviour
 		float popTime = duration * 0.5f;
 
 		foreach (var u in otherUnits) {
+			u.onMergeDone -= checkTotalCompletions;
 			u.onMergeDone += checkTotalCompletions;
 			u.mergeTo_overTime_thenGone (targetU.transform.localPosition, mergeTime);
 		}
@@ -288,7 +311,8 @@ public class UnitsManager : MonoBehaviour
 		yield return new WaitForSeconds (mergeTime);
 
 		targetU.upgrade (1);
-		targetU.testMark (true);//----------------------------
+//		targetU.testMark (true);//----------------------------
+		targetU.onMergeDone -= checkTotalCompletions;
 		targetU.onMergeDone += checkTotalCompletions;
 		targetU.popSprite_overTime (new Vector3 (1.3f, 1.3f, 1f), popTime);
 
@@ -300,20 +324,12 @@ public class UnitsManager : MonoBehaviour
 	}
 
 
-	void debugBoard ()
-	{
-		for (int c = 0; c < unitsTable.GetLength (0); c++) {
-			for (int r = 0; r < unitsTable.GetLength (1); r++) {
-				unitsTable [c, r].debugText (c.ToString () + ":" + r.ToString ());
-//				unitsTable [c, r].showDebugCoord();
-//				unitsTable [c, r].debugText (unitsTable [c, r].BelongingBlocks.ToString ());
-			}
-		}
-	}
+
 
 	void readyForInteraction ()
 	{
 		print ("ready!");
+		switch_BoardTouchable (true);
 	}
 
 	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)
@@ -326,7 +342,7 @@ public class UnitsManager : MonoBehaviour
 			if (match4s_TopRight != null) {
 				candidatesGroups.Add (match4s_TopRight);
 				foreach (Unit U in match4s_TopRight) {
-					U.testMark (true);//----------------------------
+//					U.testMark (true);//----------------------------
 					U.BelongingBlocks++;
 				}
 				BoardUtilities.remove_UnitsInSmallList_FromLargeList (match4s_TopRight, allUnitsList);
@@ -355,6 +371,7 @@ public class UnitsManager : MonoBehaviour
 
 
 
+
 	void OnGUI ()
 	{
 		if (GUI.Button (new Rect (0, 0, 200, 55), "test")) {
@@ -369,6 +386,18 @@ public class UnitsManager : MonoBehaviour
 
 //		unitsToCheck [0].testMark (true);
 //		get_LinkedUnitsGroup_of (unitsToCheck [0]);
+		collapseAll_matches_OnBoard ();
+	}
+
+	void debugBoard ()
+	{
+		for (int c = 0; c < unitsTable.GetLength (0); c++) {
+			for (int r = 0; r < unitsTable.GetLength (1); r++) {
+//				unitsTable [c, r].debugText (c.ToString () + ":" + r.ToString ());
+				//				unitsTable [c, r].showDebugCoord();
+				unitsTable [c, r].debugText (unitsTable [c, r].BelongingBlocks.ToString ());
+			}
+		}
 	}
 	
 

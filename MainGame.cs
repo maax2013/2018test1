@@ -34,6 +34,7 @@ public class MainGame : MonoBehaviour
 	void initUnits ()
 	{
 		unitsManager = GetComponent<UnitsManager> ();
+		unitsManager.init ();
 		unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
 
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);

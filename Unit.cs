@@ -51,7 +51,7 @@ public class Unit : MonoBehaviour
 
 	Coroutine moveCoroutine;
 	Coroutine popCoroutine;
-	float fallSpeed = 0.2f;
+	float fallSpeed = 0.1f;
 
 
 	// Use this for initialization
@@ -122,11 +122,6 @@ public class Unit : MonoBehaviour
 		glowObj.SetActive (on);
 	}
 
-	public void becomeCueUnit ()
-	{
-		
-	}
-
 
 
 	public void upgrade (int levels)
@@ -165,11 +160,12 @@ public class Unit : MonoBehaviour
 			elapsedTime += Time.deltaTime;
 			yield return new WaitForEndOfFrame ();
 		}
-		transform.localPosition = target;
+		transform.localPosition = startingPos;
 		reset ();
 		gameObject.SetActive (false);
 		if (onMergeDone != null) {
 			onMergeDone ();
+			onMergeDone = null;
 		}
 	}
 
@@ -202,6 +198,7 @@ public class Unit : MonoBehaviour
 		clearConnections ();
 		if (onMergeDone != null) {
 			onMergeDone ();
+			onMergeDone = null;
 		}
 	}
 
@@ -234,6 +231,7 @@ public class Unit : MonoBehaviour
 
 		if (onFallDone != null) {
 			onFallDone (this);
+			onFallDone = null;
 		}
 	}
 
