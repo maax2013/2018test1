@@ -9,6 +9,7 @@ public class UnitsManager : MonoBehaviour
 
 	Block blockCtr;
 	BoardFall boardFall;
+	BoardMatch boardMatch;
 	AllUnitTypes allTypes;
 
 	Unit tempUnit;
@@ -19,13 +20,12 @@ public class UnitsManager : MonoBehaviour
 	Unit[,] unitsTable;
 	Bounds gameBoardBoundary;
 
-	//	List<Unit> unitsToMatchingCheck;
-
 	Unit cueUnit;
 
 	public void init ()
 	{
 		blockCtr = GetComponent<Block> ();
+		boardMatch = GetComponent<BoardMatch> ();
 		boardFall = GetComponent<BoardFall> ();
 		allTypes = GetComponent<AllUnitTypes> ();
 	}
@@ -33,8 +33,6 @@ public class UnitsManager : MonoBehaviour
 
 	public void createUnits_ByRowColumn (int column, int row)
 	{
-//		allUnitsOnBoard = new Unit[row * column];
-//		tempUnitIndex = 0;
 		unitsTable = new Unit[column, row];
 		gameBoardBoundary = new Bounds (Vector3.zero, new Vector3 (column, row, 0));
 
@@ -47,12 +45,9 @@ public class UnitsManager : MonoBehaviour
 				tempUnit = tempObj.GetComponent<Unit> ();
 				tempUnit.initUnit (c, r, allTypes);
 
-//				allUnitsOnBoard [tempUnitIndex] = tempUnit;
-//				tempUnitIndex++;
 				unitsTable [c, r] = tempUnit;
 			}
 		}
-//		tempUnitIndex = 0;
 	}
 
 	public void repositionUnitsHolder (float x, float y, float z)
@@ -62,10 +57,7 @@ public class UnitsManager : MonoBehaviour
 
 	public void repositionBlocksHolder (float x, float y, float z)
 	{
-//		blockCtr = GetComponent<Block> ();
 		blockCtr.repositionBlocksHolder (x, y, z);
-
-//		blockCtr.showBlockAt (new Vector3 (0, 0, 0));
 	}
 
 
@@ -189,210 +181,55 @@ public class UnitsManager : MonoBehaviour
 
 
 
-
-
 	public void removeAll_match4s_OnBoard_beforeGameStart ()
 	{
-		List<Unit[]> candidatesGroups = new List<Unit[]> ();
-		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
-		while (candidatesGroups.Count > 0) {
-			resetUnitsInGroup (candidatesGroups);
-			candidatesGroups.Clear ();
-			addAll_Match4sOnBoard_ToGroup (candidatesGroups);
-		}
-
+		switch_BoardTouchable (false);
+		boardMatch.removeAll_match4s_OnBoard_beforeGameStart (unitsTable);
+		readyForInteraction ();
 	}
 
 	public void collapseAll_matches_OnBoard ()
 	{
-//		print (boardFall.onAllFallDone);
 		switch_BoardTouchable (false);
+		boardMatch.onAllMatchDone -= handleOnAllMatchDone;
+		boardMatch.onAllMatchDone += handleOnAllMatchDone;
 
-		List<Unit[]> candidatesGroups = new List<Unit[]> ();
-		addAll_Match4sOnBoard_ToGroup (candidatesGroups);
-//		print (candidatesGroups.Count);
-		if (candidatesGroups.Count > 0) {
-			collapseUnitsInGroup (candidatesGroups);
-		} else {
-			readyForInteraction ();
-		}
+		boardMatch.onNeedShowBlock -= handleOnNeedShowBlock;
+		boardMatch.onNeedShowBlock += handleOnNeedShowBlock;
+
+		boardMatch.onNeedBoardFall -= handleOnNeedBoardFall;
+		boardMatch.onNeedBoardFall += handleOnNeedBoardFall;
+
+		boardMatch.collapseAll_matches_OnBoard (unitsTable);
 	}
 
-	int remainingBlockTasks = 0;
-
-	void collapseUnitsInGroup (List<Unit[]> candidatesGroups)
+	void handleOnAllMatchDone (Unit[,] updatedTable)
 	{
-		List<Unit[]> blockGroups = new List<Unit[]> ();
-		List<Unit[]> clearGroups = new List<Unit[]> ();
-
-		for (int i = 0; i < candidatesGroups.Count; i++) {
-			Unit[] match4Units = candidatesGroups [i];
-
-			if (match4Units [0].CurrentUnitType.isUpgradable ()) {
-				blockGroups.Add (match4Units);
-			} else {
-				if (match4Units [0].CurrentUnitType.isNoTier ()) {
-					clearGroups.Add (match4Units);
-				}
-				if (match4Units [0].CurrentUnitType.isMaxTier ()) {
-					//TODO: what to do with block of max tiered units
-				}
-			}
-		}
-		remainingBlockTasks = 0;
-		System.Action updateremainingBlockTasks = () => {
-			remainingBlockTasks--;
-		};
-		if (blockGroups.Count > 0) {
-			remainingBlockTasks++;
-			StartCoroutine (makeBlocks (blockGroups, updateremainingBlockTasks));
-		}
-		if (clearGroups.Count > 0) {
-			remainingBlockTasks++;
-			StartCoroutine (clearNoTierBlocks (clearGroups, updateremainingBlockTasks));
-		}
-
-		StartCoroutine (waitForBlockTasksDone ());
-			
+		unitsTable = updatedTable;
+		//		debugBoard ();
+		readyForInteraction ();
 	}
 
-	IEnumerator waitForBlockTasksDone ()
+	void handleOnNeedBoardFall (Unit[,] updatedTable)
 	{
-		while (remainingBlockTasks > 0) {
-			yield return new WaitForEndOfFrame ();
-		}
+		unitsTable = updatedTable;
+		//		debugBoard ();
 		boardFall.onAllFallDone -= handleOnAllFallDone;
 		boardFall.onAllFallDone += handleOnAllFallDone;
 		boardFall.fall (unitsTable);
 	}
 
-	IEnumerator clearNoTierBlocks (List<Unit[]> clearGroups, System.Action callback)
+	void handleOnAllFallDone (Unit[,] updatedTable)
 	{
-		int totalBlocksToMake = clearGroups.Count;
-		//		print (totalBlocksToMake);
-		int totalCompletion = 0;
-		int index = 0;
-		float clearBlockTime = 0.3f;//~~~~~~~~~~~~~~~~~~~~~~~~
-		float eachDelayTime = 0.2f;//~~~~~~~~~~~~~~~~~~~~~~
-
-		while (index < totalBlocksToMake) {
-			StartCoroutine (clearBlock (clearGroups [index], clearBlockTime, () => {
-				totalCompletion++;
-				//				print (totalCompletion);
-			}));
-			index++;
-			yield return new WaitForSeconds (eachDelayTime);
-		}
-
-		while (totalCompletion < totalBlocksToMake) {
-			yield return new WaitForEndOfFrame ();
-		}
-		//TODO: add points to total cash earned
-		callback ();
+		unitsTable = updatedTable;
+		//		debugBoard ();
+		boardMatch.collapseAll_matches_OnBoard (unitsTable);
 	}
 
-	IEnumerator clearBlock (Unit[] blockUnits, float duration, System.Action callback)
+	void handleOnNeedShowBlock (Vector3 targetP, float duration)
 	{
-		int totalUnitsToAnimate = blockUnits.Length;
-		int totalCompletions = 0;
-
-		System.Action checkTotalCompletions = () => {
-			totalCompletions++;
-		};
-
-		foreach (var u in blockUnits) {
-			u.onJumpDone -= checkTotalCompletions;
-			u.onJumpDone += checkTotalCompletions;
-			u.jump_overTime_thenGone (duration);
-		}
-		while (totalCompletions < totalUnitsToAnimate) {
-			yield return new WaitForEndOfFrame ();
-		}
-		callback ();
+		blockCtr.showBlockAt_overTime (targetP, duration);
 	}
-
-	IEnumerator makeBlocks (List<Unit[]> blockGroups, System.Action callback)
-	{
-		int totalBlocksToMake = blockGroups.Count;
-//		print (totalBlocksToMake);
-		int totalCompletion = 0;
-		int index = 0;
-		float upgradeBlockTime = 0.8f;//~~~~~~~~~~~~~~~~~~~~~~~~
-		float eachDelayTime = 0.2f;//~~~~~~~~~~~~~~~~~~~~~~
-
-		while (index < totalBlocksToMake) {
-			StartCoroutine (upgradeBlock (blockGroups [index], upgradeBlockTime, () => {
-				totalCompletion++;
-//				print (totalCompletion);
-			}));
-			index++;
-			yield return new WaitForSeconds (eachDelayTime);
-		}
-
-		while (totalCompletion < totalBlocksToMake) {
-			yield return new WaitForEndOfFrame ();
-		}
-
-		callback ();
-	}
-
-	void handleOnAllFallDone (Unit[,] originalTable)
-	{
-		unitsTable = originalTable;
-//		debugBoard ();
-//		print ("fire");
-		collapseAll_matches_OnBoard ();//++++++++++++++++++++
-	}
-
-	IEnumerator upgradeBlock (Unit[] blockUnits, float duration, System.Action callback)
-	{
-		var rdmN = Random.Range (0, blockUnits.Length);
-		Unit targetU = blockUnits [rdmN];
-		List<Unit> otherUnits = new List<Unit> ();
-
-		for (int i = 0; i < blockUnits.Length; i++) {
-			if (i != rdmN) {
-				otherUnits.Add (blockUnits [i]);
-			}
-		}
-
-		int totalUnitsToAnimate = blockUnits.Length;
-		int totalCompletions = 0;
-
-		System.Action checkTotalCompletions = () => {
-			totalCompletions++;
-		};
-
-		float mergeTime = duration * 0.5f;
-		float popTime = duration * 0.5f;
-
-		foreach (var u in otherUnits) {
-			u.onMergeDone -= checkTotalCompletions;
-			u.onMergeDone += checkTotalCompletions;
-			u.mergeTo_overTime_thenGone (targetU.transform.localPosition, mergeTime);
-		}
-		/*since the first unit in blockUnits is the one at the bottom left, so the position of the block will be its x + half with, y + half height*/
-		Vector3 bottomLeftU = blockUnits [0].transform.localPosition;
-		Vector3 blockPos = new Vector3 (bottomLeftU.x + 0.5f, bottomLeftU.y + 0.5f, 0);
-		blockCtr.showBlockAt_overTime (blockPos, mergeTime + popTime);
-
-		yield return new WaitForSeconds (mergeTime);
-
-		targetU.upgrade (1);
-//		targetU.testMark (true);//----------------------------
-		targetU.onMergeDone -= checkTotalCompletions;
-		targetU.onMergeDone += checkTotalCompletions;
-		targetU.popSprite_overTime (popTime);
-
-//		yield return new WaitForSeconds (popTime + Time.deltaTime);
-		while (totalCompletions < totalUnitsToAnimate) {
-			yield return new WaitForEndOfFrame ();
-		}
-		callback ();
-	}
-
-
-
 
 	void readyForInteraction ()
 	{
@@ -400,36 +237,7 @@ public class UnitsManager : MonoBehaviour
 		switch_BoardTouchable (true);
 	}
 
-	void addAll_Match4sOnBoard_ToGroup (List<Unit[]> candidatesGroups)
-	{
-		List<Unit> allUnitsList = BoardUtilities.getAllUnitsList_onTable (unitsTable);
 
-		while (allUnitsList.Count > 0) {
-			Unit tempU = allUnitsList [0];
-			Unit[] match4s_TopRight = BoardUtilities.getmatch4Units_towards_onTable (tempU, new Vector2Int (1, 1), unitsTable);
-			if (match4s_TopRight != null) {
-				candidatesGroups.Add (match4s_TopRight);
-				foreach (Unit U in match4s_TopRight) {
-//					U.testMark (true);//----------------------------
-					U.BelongingBlocks++;
-				}
-				BoardUtilities.remove_UnitsInSmallList_FromLargeList (match4s_TopRight, allUnitsList);
-			} else {
-				BoardUtilities.tryRemoveFromGroup (tempU, allUnitsList);
-			}
-		}
-	}
-
-	void resetUnitsInGroup (List<Unit[]> candidatesGroups)
-	{
-		for (int i = 0; i < candidatesGroups.Count; i++) {
-			Unit[] match4Units = candidatesGroups [i];
-			foreach (Unit u in match4Units) {
-				u.reset ();
-				u.testMark (false);//-----------------
-			}
-		}
-	}
 
 
 

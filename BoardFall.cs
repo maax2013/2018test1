@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoardFall: MonoBehaviour
+public class BoardFall : MonoBehaviour
 {
 	public event System.Action<Unit[,]> onAllFallDone;
 
@@ -17,21 +17,6 @@ public class BoardFall: MonoBehaviour
 	
 	int totalFallingUnits = 0;
 	int totalCompletions = 0;
-
-	public void fall_1 (Unit[,] units)
-	{
-		foreach (var item in units) {
-			if (!item.gameObject.activeSelf) {
-//				print (item.CurrentColumn + ":" + item.CurrentRow);
-				item.gameObject.SetActive (true);
-			}
-		}
-		print ("falling done!");
-		if (onAllFallDone != null) {
-			onAllFallDone (units);
-			onAllFallDone = null;
-		}
-	}
 
 	public void fall (Unit[,] units)
 	{
@@ -146,7 +131,7 @@ public class BoardFall: MonoBehaviour
 	
 //		yield return new WaitForSeconds (2f);
 	
-		print ("falling done!");
+		Debug.Log ("falling done!");
 		if (onAllFallDone != null) {
 			onAllFallDone (originalTable);
 		}
