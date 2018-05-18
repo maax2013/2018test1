@@ -20,7 +20,9 @@ public class Unit : MonoBehaviour
 		}
 	}
 
-	public bool IsUpgradable { get; set; }
+	public UnitType CurrentUnitType { get; set; }
+
+	//	public bool IsUpgradable { get; set; }
 
 	public int CurrentRow { get; set; }
 
@@ -43,11 +45,13 @@ public class Unit : MonoBehaviour
 
 	public event System.Action<Unit> onFallDone;
 	public event System.Action onMergeDone;
+	public event System.Action onJumpDone;
 
-	[System.NonSerialized] public int BelongingBlocks;
+	[HideInInspector] public int BelongingBlocks;
 	//	int levelOfBigONE;
 
-	UnitType unitTypeCtr;
+	AllUnitTypes unitTypeCtr;
+
 
 	Coroutine moveCoroutine;
 	Coroutine popCoroutine;
@@ -60,15 +64,17 @@ public class Unit : MonoBehaviour
 		
 	}
 
-	public void initUnit (int column, int row)
+	public void initUnit (int column, int row, AllUnitTypes uTypes)
 	{
 //		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
 		BelongingBlocks = 0;
 		setUnitCoord (column, row);
 
-		unitTypeCtr = GetComponent<UnitType> ();
-		unitTypeCtr.init ();
+		//TODO:
+//		unitTypeCtr = GetComponent<AllUnitTypes> ();
+//		unitTypeCtr.init ();
+		unitTypeCtr = uTypes;
 
 		randomId ();
 	}
@@ -81,7 +87,7 @@ public class Unit : MonoBehaviour
 
 	public void randomId ()
 	{
-		unitTypeCtr.randomType ();
+		CurrentUnitType = unitTypeCtr.getRandomType ();
 		updateUnitInfo ();
 	}
 
@@ -126,15 +132,42 @@ public class Unit : MonoBehaviour
 
 	public void upgrade (int levels)
 	{
+		//TODO:
 //		print ("upgrade");
-		if (IsUpgradable) {
-			unitTypeCtr.upgradeToNextTier ();
+		if (CurrentUnitType.isUpgradable ()) {
+			CurrentUnitType.upgradeToNextTier ();
 			updateUnitInfo ();
 		} else {
 			//TODO:
 			//+++++++++++++++++
 		}
 
+	}
+
+	public void jump_overTime_thenGone (float jumpTime)
+	{
+		StartCoroutine (jump_overTime_thenInactive (jumpTime));
+	}
+
+	IEnumerator jump_overTime_thenInactive (float duration)
+	{
+		float elapsedTime = 0;
+//		Vector3 startingPos = transform.localPosition;
+//		Vector3 target = new Vector3 (startingPos.x, startingPos.y + 1, startingPos.z);
+		Vector3 startingScale = transform.localScale;
+		Vector3 target = new Vector3 (0.1f, 1f, 1f);//~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		while (elapsedTime < duration) {
+			transform.localScale = Vector3.Lerp (startingScale, target, (elapsedTime / duration));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localScale = startingScale;
+		reset ();
+		gameObject.SetActive (false);
+		if (onJumpDone != null) {
+			onJumpDone ();
+			onJumpDone = null;
+		}
 	}
 
 	public void mergeTo_overTime_thenGone (Vector3 target, float mergeTime)
@@ -146,9 +179,9 @@ public class Unit : MonoBehaviour
 		moveCoroutine = StartCoroutine (mergeTo_overTime_thenInactive (target, mergeTime));
 	}
 
-	public void popSprite_overTime (Vector3 target, float popTime)
+	public void popSprite_overTime (float popTime)
 	{
-		popCoroutine = StartCoroutine (popSpriteTo_overTime (target, popTime));
+		popCoroutine = StartCoroutine (popSpriteTo_overTime (popTime));
 	}
 
 	IEnumerator mergeTo_overTime_thenInactive (Vector3 target, float duration)
@@ -169,8 +202,9 @@ public class Unit : MonoBehaviour
 		}
 	}
 
-	IEnumerator popSpriteTo_overTime (Vector3 target, float duration)
+	IEnumerator popSpriteTo_overTime (float duration)
 	{
+		Vector3 target = new Vector3 (1.3f, 1.3f, 1f);//~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		float elapsedTime = 0;
 
 		float popUpTime = duration * 0.2f;
@@ -260,9 +294,10 @@ public class Unit : MonoBehaviour
 
 	void updateUnitInfo ()
 	{
-		unitID = unitTypeCtr.getCurrentType ();
-		IsUpgradable = unitTypeCtr.isUpgradable ();
-		spriteObj.GetComponent<SpriteRenderer> ().sprite = unitTypeCtr.getCurrentSprite ();
+		//TODO:
+		unitID = CurrentUnitType.getCurrentTypeID ();
+//		IsUpgradable = CurrentUnitType.isUpgradable ();
+		spriteObj.GetComponent<SpriteRenderer> ().sprite = CurrentUnitType.getCurrentSprite ();
 	}
 	
 	// Update is called once per frame

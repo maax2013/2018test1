@@ -9,6 +9,7 @@ public class UnitsManager : MonoBehaviour
 
 	Block blockCtr;
 	BoardFall boardFall;
+	AllUnitTypes allTypes;
 
 	Unit tempUnit;
 
@@ -26,6 +27,7 @@ public class UnitsManager : MonoBehaviour
 	{
 		blockCtr = GetComponent<Block> ();
 		boardFall = GetComponent<BoardFall> ();
+		allTypes = GetComponent<AllUnitTypes> ();
 	}
 
 
@@ -43,7 +45,7 @@ public class UnitsManager : MonoBehaviour
 				tempObj.transform.SetParent (unitsHolder, false);
 
 				tempUnit = tempObj.GetComponent<Unit> ();
-				tempUnit.initUnit (c, r);
+				tempUnit.initUnit (c, r, allTypes);
 
 //				allUnitsOnBoard [tempUnitIndex] = tempUnit;
 //				tempUnitIndex++;
@@ -216,6 +218,8 @@ public class UnitsManager : MonoBehaviour
 		}
 	}
 
+	int remainingBlockTasks = 0;
+
 	void collapseUnitsInGroup (List<Unit[]> candidatesGroups)
 	{
 		List<Unit[]> blockGroups = new List<Unit[]> ();
@@ -224,17 +228,90 @@ public class UnitsManager : MonoBehaviour
 		for (int i = 0; i < candidatesGroups.Count; i++) {
 			Unit[] match4Units = candidatesGroups [i];
 
-			if (match4Units [0].IsUpgradable) {
+			if (match4Units [0].CurrentUnitType.isUpgradable ()) {
 				blockGroups.Add (match4Units);
 			} else {
-				clearGroups.Add (match4Units);
+				if (match4Units [0].CurrentUnitType.isNoTier ()) {
+					clearGroups.Add (match4Units);
+				}
+				if (match4Units [0].CurrentUnitType.isMaxTier ()) {
+					//TODO: what to do with block of max tiered units
+				}
 			}
 		}
-		StartCoroutine (makeBlocks (blockGroups));
-		//TODO: handle cleargroups
+		remainingBlockTasks = 0;
+		System.Action updateremainingBlockTasks = () => {
+			remainingBlockTasks--;
+		};
+		if (blockGroups.Count > 0) {
+			remainingBlockTasks++;
+			StartCoroutine (makeBlocks (blockGroups, updateremainingBlockTasks));
+		}
+		if (clearGroups.Count > 0) {
+			remainingBlockTasks++;
+			StartCoroutine (clearNoTierBlocks (clearGroups, updateremainingBlockTasks));
+		}
+
+		StartCoroutine (waitForBlockTasksDone ());
+			
 	}
 
-	IEnumerator makeBlocks (List<Unit[]> blockGroups)
+	IEnumerator waitForBlockTasksDone ()
+	{
+		while (remainingBlockTasks > 0) {
+			yield return new WaitForEndOfFrame ();
+		}
+		boardFall.onAllFallDone -= handleOnAllFallDone;
+		boardFall.onAllFallDone += handleOnAllFallDone;
+		boardFall.fall (unitsTable);
+	}
+
+	IEnumerator clearNoTierBlocks (List<Unit[]> clearGroups, System.Action callback)
+	{
+		int totalBlocksToMake = clearGroups.Count;
+		//		print (totalBlocksToMake);
+		int totalCompletion = 0;
+		int index = 0;
+		float clearBlockTime = 0.3f;//~~~~~~~~~~~~~~~~~~~~~~~~
+		float eachDelayTime = 0.2f;//~~~~~~~~~~~~~~~~~~~~~~
+
+		while (index < totalBlocksToMake) {
+			StartCoroutine (clearBlock (clearGroups [index], clearBlockTime, () => {
+				totalCompletion++;
+				//				print (totalCompletion);
+			}));
+			index++;
+			yield return new WaitForSeconds (eachDelayTime);
+		}
+
+		while (totalCompletion < totalBlocksToMake) {
+			yield return new WaitForEndOfFrame ();
+		}
+		//TODO: add points to total cash earned
+		callback ();
+	}
+
+	IEnumerator clearBlock (Unit[] blockUnits, float duration, System.Action callback)
+	{
+		int totalUnitsToAnimate = blockUnits.Length;
+		int totalCompletions = 0;
+
+		System.Action checkTotalCompletions = () => {
+			totalCompletions++;
+		};
+
+		foreach (var u in blockUnits) {
+			u.onJumpDone -= checkTotalCompletions;
+			u.onJumpDone += checkTotalCompletions;
+			u.jump_overTime_thenGone (duration);
+		}
+		while (totalCompletions < totalUnitsToAnimate) {
+			yield return new WaitForEndOfFrame ();
+		}
+		callback ();
+	}
+
+	IEnumerator makeBlocks (List<Unit[]> blockGroups, System.Action callback)
 	{
 		int totalBlocksToMake = blockGroups.Count;
 //		print (totalBlocksToMake);
@@ -256,16 +333,7 @@ public class UnitsManager : MonoBehaviour
 			yield return new WaitForEndOfFrame ();
 		}
 
-//		System.Action<Unit[,]> handleOnAllFallDone = (Unit[,] originalTable) => {
-//			unitsTable = originalTable;
-//			debugBoard ();
-//			print ("fire");
-//			collapseAll_matches_OnBoard ();//++++++++++++++++++++
-//		};
-		boardFall.onAllFallDone -= handleOnAllFallDone;
-		boardFall.onAllFallDone += handleOnAllFallDone;
-		boardFall.fall (unitsTable);
-//		boardFall.fall_1 (unitsTable);
+		callback ();
 	}
 
 	void handleOnAllFallDone (Unit[,] originalTable)
@@ -314,7 +382,7 @@ public class UnitsManager : MonoBehaviour
 //		targetU.testMark (true);//----------------------------
 		targetU.onMergeDone -= checkTotalCompletions;
 		targetU.onMergeDone += checkTotalCompletions;
-		targetU.popSprite_overTime (new Vector3 (1.3f, 1.3f, 1f), popTime);
+		targetU.popSprite_overTime (popTime);
 
 //		yield return new WaitForSeconds (popTime + Time.deltaTime);
 		while (totalCompletions < totalUnitsToAnimate) {
