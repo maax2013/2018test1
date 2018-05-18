@@ -7,7 +7,6 @@ public class Unit : MonoBehaviour
 	[SerializeField] GameObject textObj;
 	[SerializeField] GameObject glowObj;
 	[SerializeField] GameObject spriteObj;
-	//	[SerializeField] Sprite[] sprites;
 
 	string unitID;
 
@@ -21,8 +20,6 @@ public class Unit : MonoBehaviour
 	}
 
 	public UnitType CurrentUnitType { get; set; }
-
-	//	public bool IsUpgradable { get; set; }
 
 	public int CurrentRow { get; set; }
 
@@ -50,7 +47,7 @@ public class Unit : MonoBehaviour
 	[HideInInspector] public int BelongingBlocks;
 	//	int levelOfBigONE;
 
-	AllUnitTypes unitTypeCtr;
+	AllUnitTypes allTypes;
 
 
 	Coroutine moveCoroutine;
@@ -71,10 +68,7 @@ public class Unit : MonoBehaviour
 		BelongingBlocks = 0;
 		setUnitCoord (column, row);
 
-		//TODO:
-//		unitTypeCtr = GetComponent<AllUnitTypes> ();
-//		unitTypeCtr.init ();
-		unitTypeCtr = uTypes;
+		allTypes = uTypes;
 
 		randomId ();
 	}
@@ -87,7 +81,7 @@ public class Unit : MonoBehaviour
 
 	public void randomId ()
 	{
-		CurrentUnitType = unitTypeCtr.getRandomType ();
+		CurrentUnitType = allTypes.getRandomType ();
 		updateUnitInfo ();
 	}
 
@@ -132,14 +126,11 @@ public class Unit : MonoBehaviour
 
 	public void upgrade (int levels)
 	{
-		//TODO:
-//		print ("upgrade");
 		if (CurrentUnitType.isUpgradable ()) {
 			CurrentUnitType.upgradeToNextTier ();
 			updateUnitInfo ();
 		} else {
-			//TODO:
-			//+++++++++++++++++
+			//TODO: what to do when reach max tier
 		}
 
 	}
@@ -287,16 +278,10 @@ public class Unit : MonoBehaviour
 		debugText (CurrentColumn.ToString () + ":" + CurrentRow.ToString ());
 	}
 
-	//	public void ghost ()
-	//	{
-	//		gameObject.SetActive (false);//~~~~~~~~~~~~~~
-	//	}
 
 	void updateUnitInfo ()
 	{
-		//TODO:
 		unitID = CurrentUnitType.getCurrentTypeID ();
-//		IsUpgradable = CurrentUnitType.isUpgradable ();
 		spriteObj.GetComponent<SpriteRenderer> ().sprite = CurrentUnitType.getCurrentSprite ();
 	}
 	

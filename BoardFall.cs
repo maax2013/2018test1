@@ -10,9 +10,9 @@ public class BoardFall : MonoBehaviour
 	Unit[,] unitsTable;
 	static int? firstEmpty;
 	
-	List<List<Unit>> readyToFallGroups = new List<List<Unit>> ();
-	List<Unit> readyToFallUnits = new List<Unit> ();
-	List<int> skyfallColumns = new List<int> ();
+	List<List<Unit>> readyToFallColumnGroups = new List<List<Unit>> ();
+	List<Unit> readyToFallUnitsInColumn = new List<Unit> ();
+	List<int> skyfallColumnIndexes = new List<int> ();
 	List<Unit> reusableUnits = new List<Unit> ();
 	
 	int totalFallingUnits = 0;
@@ -20,56 +20,63 @@ public class BoardFall : MonoBehaviour
 
 	public void fall (Unit[,] units)
 	{
-		//		StopAllCoroutines ();
 		//		print ("fall");
 		originalTable = units;
-	
-		readyToFallGroups.Clear ();
+
+		/*List of groups of units to fall, separate by columns*/
+		readyToFallColumnGroups.Clear ();
+		/*list of column indexes, should be the same length as readyToFallColumnGroups*/
+		skyfallColumnIndexes.Clear ();
+
 		reusableUnits.Clear ();
-		skyfallColumns.Clear ();
 	
-		unitsTable = new Unit[units.GetLength (0), units.GetLength (1)];
-		unitsTable = copyTable (units, unitsTable);
+		unitsTable = new Unit[originalTable.GetLength (0), originalTable.GetLength (1)];
+		unitsTable = convertTable (originalTable, unitsTable);
 	
-		markFallingUnits_onBoard (unitsTable);
-		addSkyfallUnits (readyToFallGroups);
+		groupFallingUnitsByColumn_onBoard (unitsTable);
+		addSkyfallUnits_toFallingColumns (readyToFallColumnGroups);
 		StartCoroutine (unitsFall ());
 	}
 
-	void markFallingUnits_onBoard (Unit[,] unitsTable)
+	void groupFallingUnitsByColumn_onBoard (Unit[,] unitsTable)
 	{
 		for (int x = 0; x < unitsTable.GetLength (0); x++) {
 			firstEmpty = null;
-			readyToFallUnits = new List<Unit> ();
+			readyToFallUnitsInColumn = new List<Unit> ();
 	
 			for (int y = 0; y < unitsTable.GetLength (1); y++) {
 				if (unitsTable [x, y] == null && !firstEmpty.HasValue) {
 					firstEmpty = y;
 				} else if (firstEmpty.HasValue && unitsTable [x, y] != null) {
 					Unit fallingU = unitsTable [x, y];
+					/*mark Falling Unit Start and End position Coords, for animation later*/
 					fallingU.fallFrom = new Vector2Int (x, y);
 					fallingU.fallTo = new Vector2Int (x, firstEmpty.Value);
-					readyToFallUnits.Add (fallingU);
+
+					readyToFallUnitsInColumn.Add (fallingU);
 	
+					/*shift table coords*/
 					unitsTable [x, firstEmpty.Value] = unitsTable [x, y];
 					unitsTable [x, y] = null;
 					firstEmpty++;
 				}
 			}
+			/*as long as firstEmpty has value, meaning there a empty cell in the column, 
+			if the empty cells on the very top, still add a empty list to the group, for add skyfall later*/
 			if (firstEmpty.HasValue) {
-				//				print (readyToFallUnits.Count);
-				readyToFallGroups.Add (readyToFallUnits);
-				//				print (readyToFallGroups.Count + "==");
-				skyfallColumns.Add (x);
+				//				print (readyToFallUnitsInColumn.Count);
+				readyToFallColumnGroups.Add (readyToFallUnitsInColumn);
+				//				print (readyToFallColumnGroups.Count + "==");
+				skyfallColumnIndexes.Add (x);
 			}
 		}
 	}
 
-	void addSkyfallUnits (List<List<Unit>> readyToFallGroups)
+	void addSkyfallUnits_toFallingColumns (List<List<Unit>> readyToFallColumnGroups)
 	{
 		//		print ("==================");
-		//		print (readyToFallGroups.Count + "==");
-		//		foreach (var item in readyToFallGroups) {
+		//		print (readyToFallColumnGroups.Count + "==");
+		//		foreach (var item in readyToFallColumnGroups) {
 		//			print (item.Count);
 		//		}
 	
@@ -80,21 +87,23 @@ public class BoardFall : MonoBehaviour
 		int boardHeight = unitsTable.GetLength (1);
 		Unit tempU;
 	
-		for (int n = 0; n < readyToFallGroups.Count; n++) {
-			//			print (readyToFallGroups [n].Count);
+		for (int n = 0; n < readyToFallColumnGroups.Count; n++) {
+			//			print (readyToFallColumnGroups [n].Count);
 			skyfallStack = 0;
-			fallingColumn = skyfallColumns [n];
+			fallingColumn = skyfallColumnIndexes [n];
 			//			print (fallingColumn);
-			emptyCellsInColumn = getEmptyCellCount_inColumn (fallingColumn, unitsTable);
+			emptyCellsInColumn = countEmptyCell_inColumn_onBoard (fallingColumn, unitsTable);
 			//			print (emptyCellsInColumn);
 			for (int i = 0; i < emptyCellsInColumn; i++) {
 				tempU = getReusableUnit ();
 				//				print (tempU);
-				//				tempU.reset ();
+				/*new skyfall unit start from the very top of the board, then up*/
 				skyfall_y = boardHeight + skyfallStack;
+				/*mark Falling Unit Start and End position Coords, for animation later*/
 				tempU.fallFrom = new Vector2Int (fallingColumn, skyfall_y);
 				tempU.fallTo = new Vector2Int (fallingColumn, skyfall_y - emptyCellsInColumn);
-				readyToFallGroups [n].Add (tempU);
+
+				readyToFallColumnGroups [n].Add (tempU);
 				skyfallStack++;
 			}
 		}
@@ -103,23 +112,28 @@ public class BoardFall : MonoBehaviour
 	IEnumerator unitsFall ()
 	{
 		//		print ("==================");
-		//		print (readyToFallGroups.Count + "==");
-		//		foreach (var item in readyToFallGroups) {
+		//		print (readyToFallColumnGroups.Count + "==");
+		//		foreach (var item in readyToFallColumnGroups) {
 		//			print (item.Count);
 		//			//			print (item [0].CurrentColumn);
 		//		}
 
 		totalFallingUnits = 0;
 		totalCompletions = 0;
-		totalFallingUnits = countAllUnitsInNestedList (readyToFallGroups);
+		totalFallingUnits = countAllUnitsInNestedList (readyToFallColumnGroups);
 		//		print (totalFallingUnits);
-		foreach (var readyToFallUnits in readyToFallGroups) {
-			while (readyToFallUnits.Count > 0) {
-				readyToFallUnits [0].gameObject.SetActive (true);
-				readyToFallUnits [0].onFallDone -= checkTotalCompletions;
-				readyToFallUnits [0].onFallDone += checkTotalCompletions;
-				readyToFallUnits [0].fall ();
-				readyToFallUnits.RemoveAt (0);
+
+		//TODO: different falling animation, all lowest units from each column fall at once
+		foreach (List<Unit> readyToFallUnitsInColumn in readyToFallColumnGroups) {
+			while (readyToFallUnitsInColumn.Count > 0) {
+				readyToFallUnitsInColumn [0].gameObject.SetActive (true);
+
+				readyToFallUnitsInColumn [0].onFallDone -= updateTableAndTotalCompletions;
+				readyToFallUnitsInColumn [0].onFallDone += updateTableAndTotalCompletions;
+				readyToFallUnitsInColumn [0].fall ();
+
+				readyToFallUnitsInColumn.RemoveAt (0);
+
 				//			yield return new WaitForSeconds (0.05f);
 				yield return new WaitForEndOfFrame ();
 			}
@@ -128,8 +142,6 @@ public class BoardFall : MonoBehaviour
 		while (totalCompletions < totalFallingUnits) {
 			yield return new WaitForEndOfFrame ();
 		}
-	
-//		yield return new WaitForSeconds (2f);
 	
 		Debug.Log ("falling done!");
 		if (onAllFallDone != null) {
@@ -148,22 +160,17 @@ public class BoardFall : MonoBehaviour
 		return total;
 	}
 
-	void checkTotalCompletions (Unit u)
+	void updateTableAndTotalCompletions (Unit u)
 	{
 		//		print (u);
-		updateCoord_onOriginalTable (u, originalTable);
+		BoardUtilities.update_OneUnitCoord_onTable (u, originalTable);
+//		updateCoord_onOriginalTable (u, originalTable);
 		totalCompletions++;
 		//		print (totalCompletions);
 	}
 
-	void updateCoord_onOriginalTable (Unit u, Unit[,] originalTable)
-	{
-		int coordX = u.CurrentColumn;
-		int coordY = u.CurrentRow;
-		originalTable [coordX, coordY] = u;
-	}
-
-	Unit[,] copyTable (Unit[,] fromT, Unit[,] toT)
+	/*mark inactive units on table as null, then add it to reusableUnits for later use as skyfall units*/
+	Unit[,] convertTable (Unit[,] fromT, Unit[,] toT)
 	{
 		for (int y = 0; y < fromT.GetLength (1); y++) {
 			for (int x = 0; x < fromT.GetLength (0); x++) {
@@ -178,7 +185,7 @@ public class BoardFall : MonoBehaviour
 		return toT;
 	}
 
-	int getEmptyCellCount_inColumn (int c, Unit[,] unitsTable)
+	int countEmptyCell_inColumn_onBoard (int c, Unit[,] unitsTable)
 	{
 		int tempN = 0;
 		for (int y = 0; y < unitsTable.GetLength (1); y++) {
@@ -196,6 +203,7 @@ public class BoardFall : MonoBehaviour
 			reusableUnits.RemoveAt (0);
 			return u;
 		} else {
+			Debug.Log ("no more reusable unit available");
 			return null;
 			//TODO: create a new unit?
 		}

@@ -101,4 +101,11 @@ public static class BoardUtilities
 		}
 		return allUnitsList;
 	}
+
+	public static void update_OneUnitCoord_onTable (Unit u, Unit[,] table)
+	{
+		int coordX = u.CurrentColumn;
+		int coordY = u.CurrentRow;
+		table [coordX, coordY] = u;
+	}
 }
