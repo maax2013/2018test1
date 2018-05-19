@@ -4,24 +4,18 @@ using UnityEngine;
 
 public class BoardBg : MonoBehaviour
 {
-	[SerializeField] GameObject cellBg;
+	[SerializeField] GameObject cellBgPrefab;
 	[SerializeField] Sprite[] sprites;
 
 	[SerializeField] Transform tileBgHolder;
 
 	GameObject tempTileBG;
 
-	// Use this for initialization
-	void Start ()
-	{
-		
-	}
-
 	public void createBoardTiles_ByRowColumn (int column, int row)
 	{
 		for (int c = 0; c < column; c++) {
 			for (int r = 0; r < row; r++) {
-				tempTileBG = Instantiate (cellBg, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
+				tempTileBG = Instantiate (cellBgPrefab, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
 				if ((r % 2 == 0 && c % 2 == 0) || (r % 2 != 0 && c % 2 != 0)) {
 					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [0];
 				} else {
@@ -36,10 +30,5 @@ public class BoardBg : MonoBehaviour
 	{
 		tileBgHolder.position = new Vector3 (x, y, z);
 	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-		
-	}
+
 }

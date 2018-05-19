@@ -7,10 +7,12 @@ public class UnitsManager : MonoBehaviour
 	[SerializeField] GameObject unitPrefab;
 	[SerializeField] Transform unitsHolder;
 
+	CountDownTimeBar cdTimer;
 	Block blockCtr;
 	BoardFall boardFall;
 	BoardMatch boardMatch;
 	AllUnitTypes allTypes;
+	DragDrop dragDrop;
 
 	Unit tempUnit;
 
@@ -28,6 +30,7 @@ public class UnitsManager : MonoBehaviour
 		boardMatch = GetComponent<BoardMatch> ();
 		boardFall = GetComponent<BoardFall> ();
 		allTypes = GetComponent<AllUnitTypes> ();
+		dragDrop = GetComponent<DragDrop> ();
 	}
 
 
@@ -60,6 +63,11 @@ public class UnitsManager : MonoBehaviour
 		blockCtr.repositionBlocksHolder (x, y, z);
 	}
 
+	public void passCDTimer (CountDownTimeBar cdt)
+	{
+		cdTimer = cdt;
+	}
+
 
 
 
@@ -72,7 +80,6 @@ public class UnitsManager : MonoBehaviour
 ////			gameTouchable = true;
 //			inputCtr.inputEnabled = true;
 //			inputCtr.OnTouch += HandleOnTouch;
-			DragDrop dragDrop = GetComponent<DragDrop> ();
 			dragDrop.init (unitsTable);
 			InputControl.onDragStart -= onDragStart;
 			InputControl.onDragStart += onDragStart;
@@ -80,6 +87,8 @@ public class UnitsManager : MonoBehaviour
 //			InputControl.onDragEnd += onDragEnd;
 //			dragDrop.OnMove += switchUnit_Towards;
 		} else {
+			//TODO: disable input
+			dragDropDone ();
 ////			gameTouchable = false;
 //			inputCtr.inputEnabled = false;
 //			inputCtr.OnTouch -= HandleOnTouch;
@@ -95,11 +104,15 @@ public class UnitsManager : MonoBehaviour
 
 	void dragDropDone ()
 	{
-		cueUnit.stopDrag ();
-		DragDrop dragDrop = GetComponent<DragDrop> ();
+		if (cueUnit) {
+			cueUnit.stopDrag ();
+			cueUnit = null;
+		}
 		InputControl.onDrag -= onDrag;
 		InputControl.onDragEnd -= onDragEnd;
 		dragDrop.OnMove -= switchUnit_Towards;
+		dragDrop.OnMove -= startCDTimer;
+		cdTimer.stopTimer ();
 		//++++++++++++++++++++++
 	}
 
@@ -136,6 +149,8 @@ public class UnitsManager : MonoBehaviour
 			InputControl.onDragEnd += onDragEnd;
 			dragDrop.OnMove -= switchUnit_Towards;
 			dragDrop.OnMove += switchUnit_Towards;
+			dragDrop.OnMove -= startCDTimer;
+			dragDrop.OnMove += startCDTimer;
 		}
 	}
 
@@ -158,6 +173,21 @@ public class UnitsManager : MonoBehaviour
 	//
 	//		}
 	//	}
+
+	void startCDTimer (Vector2Int direction)
+	{
+		if (!cdTimer.IsRuning ()) {
+			cdTimer.onTimesUp -= handleOnTimesUp;
+			cdTimer.onTimesUp += handleOnTimesUp;
+			cdTimer.startCountDown (5f);
+		}
+	}
+
+	void handleOnTimesUp ()
+	{
+		dragDropDone ();
+		collapseAll_matches_OnBoard ();
+	}
 
 	void switchUnit_Towards (Vector2Int direction)
 	{

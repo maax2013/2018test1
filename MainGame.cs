@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class MainGame : MonoBehaviour
 {
-	int boardColumns = 7;
-	int boardRows = 8;
+	[SerializeField] CountDownTimeBar cdTimer;
+	[SerializeField] int boardColumns = 7;
+	[SerializeField] int boardRows = 8;
 	float boardOffX, boardOffY;
 
 	UnitsManager unitsManager;
@@ -16,6 +17,9 @@ public class MainGame : MonoBehaviour
 	{
 		boardOffX = (boardColumns - 1) / 2f;
 		boardOffY = (boardRows - 1) / 2f;
+
+		cdTimer.gameObject.transform.localPosition = new Vector3 (0f, boardOffY + 1f, 0f);
+		cdTimer.gameObject.SetActive (false);
 
 		initBoardBG ();
 		initUnits ();
@@ -29,8 +33,6 @@ public class MainGame : MonoBehaviour
 		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 2f);
 	}
 
-
-
 	void initUnits ()
 	{
 		unitsManager = GetComponent<UnitsManager> ();
@@ -39,9 +41,10 @@ public class MainGame : MonoBehaviour
 
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
+		unitsManager.passCDTimer (cdTimer);
 
-		unitsManager.collapseAll_matches_OnBoard ();
-//		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();
+//		unitsManager.collapseAll_matches_OnBoard ();
+		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();
 //		unitsManager.markAll_linkedUnitsGroups ();
 		//		unitsManager.checkMatch4s_OnBoard ();
 //		unitsManager.switch_BoardTouchable (true);
