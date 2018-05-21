@@ -143,7 +143,7 @@ public class BoardFall : MonoBehaviour
 			yield return new WaitForEndOfFrame ();
 		}
 	
-		Debug.Log ("falling done!");
+//		Debug.Log ("falling done!");
 		if (onAllFallDone != null) {
 			onAllFallDone (originalTable);
 		}

@@ -106,15 +106,63 @@ public class Unit : MonoBehaviour
 	public void stopDrag ()
 	{
 		testMark (false);
-		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
+//		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
+		resetLocalPos ();
 	}
 
 	public void moveTo (Vector2Int v2)
 	{
-		transform.localPosition = new Vector3 (transform.localPosition.x + v2.x, transform.localPosition.y + v2.y, transform.localPosition.z);
-
+		resetLocalPos ();
+//		transform.localPosition = new Vector3 (transform.localPosition.x + v2.x, transform.localPosition.y + v2.y, transform.localPosition.z);
+		StartCoroutine (moveBounceTo (v2));
 //		TotalConnectedUnits = 1;
 //		updateCountText ();//--------------------------
+	}
+
+	void resetLocalPos ()
+	{
+		StopAllCoroutines ();
+		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
+	}
+
+	IEnumerator moveBounceTo (Vector2Int v2)
+	{
+		float elapsedTime = 0;
+		float toDuration = 0.1f;
+		float backDuration = 0.5f;
+		Vector3 startingPos = transform.localPosition;
+		Vector3 targetPos = new Vector3 (startingPos.x + v2.x, startingPos.y + v2.y, startingPos.z);
+		float overOffset = 0.1f;
+		float overX;
+		float overY;
+		if (v2.x == 0f) {
+			overX = 0f;
+		} else {
+			overX = v2.x > 0f ? overOffset : -overOffset;
+		}
+		if (v2.y == 0f) {
+			overY = 0f;
+		} else {
+			overY = v2.y > 0f ? overOffset : -overOffset;
+		}
+
+
+//		float overX = Mathf.Ceil (v2.x / 1000f) * overOffset;
+//		float overY = Mathf.Ceil (v2.y / 1000f) * overOffset;
+		Vector3 overTargetPos = new Vector3 (targetPos.x + overX, targetPos.y + overY, targetPos.z);
+		while (elapsedTime < toDuration) {
+			transform.localPosition = Vector3.Lerp (startingPos, overTargetPos, (elapsedTime / toDuration));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localPosition = overTargetPos;
+		elapsedTime = 0;
+		while (elapsedTime < toDuration) {
+			transform.localPosition = Vector3.Lerp (overTargetPos, targetPos, (elapsedTime / backDuration));
+			elapsedTime += Time.deltaTime;
+			yield return new WaitForEndOfFrame ();
+		}
+		transform.localPosition = targetPos;
 	}
 
 	public void testMark (bool on)

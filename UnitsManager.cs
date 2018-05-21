@@ -197,9 +197,10 @@ public class UnitsManager : MonoBehaviour
 			dragDropDone ();
 			//+++++++++++++++++++++
 		} else {
-			BoardUtilities.switchUnitsCoord (cueUnit, targetUnit, unitsTable);
+//			BoardUtilities.switchUnitsCoord (cueUnit, targetUnit, unitsTable);
 			/*only need to move the target unit, the cue unit is following the pointer*/
 			targetUnit.moveTo (new Vector2Int (-direction.x, -direction.y));
+			BoardUtilities.switchUnitsCoord (cueUnit, targetUnit, unitsTable);
 
 //			tryMakeBlock (cueUnit);
 //			tryMakeBlock (targetUnit);
@@ -263,7 +264,7 @@ public class UnitsManager : MonoBehaviour
 
 	void readyForInteraction ()
 	{
-		print ("ready!");
+//		print ("ready!");
 		switch_BoardTouchable (true);
 	}
 
