@@ -108,4 +108,18 @@ public static class BoardUtilities
 		int coordY = u.CurrentRow;
 		table [coordX, coordY] = u;
 	}
+
+	public static string[,] flipBlueprintTableCoord (string[,] originalT)
+	{
+		/*flip the inner and outer array, so the table has same coord as the gameboard*/
+		string[,] targetT = new string[originalT.GetLength (1), originalT.GetLength (0)];
+		int column = targetT.GetLength (0);
+		int row = targetT.GetLength (1);
+		for (int c = 0; c < column; c++) {
+			for (int r = 0; r < row; r++) {
+				targetT [c, r] = originalT [r, c];
+			}
+		}
+		return targetT;
+	}
 }
