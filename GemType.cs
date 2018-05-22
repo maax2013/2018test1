@@ -9,3 +9,15 @@
 	Gold
 }
 
+public enum GemTier
+{
+    _Tier1,
+    _Tier2,
+    _Tier3,
+    _Tier4,
+    _Tier5,
+    _Tier6,
+    _NoTier,
+    _MaxTier
+}
+

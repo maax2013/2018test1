@@ -8,8 +8,8 @@ public class UnitType
 	string currentTypeID;
 	Sprite currentSprite;
 
-	const string maxTier = "MAX_TIER";
-	const string noTier = "NO_TIER";
+	string maxTier = GemTier._MaxTier.ToString();
+	string noTier = GemTier._NoTier.ToString();
 
 	public UnitType (GemType type, Sprite[] tSprites)
 	{
@@ -62,12 +62,13 @@ public class UnitType
 		return currentTypeID.Contains (noTier);
 	}
 
-	string createTypeID (int currentTier)
+	string createTypeID (int current_Tier)
 	{
 		if (typeSprites.Length > 1) {
 			/*tier starts from 0, so compare to length-1*/
-			if (currentTier < typeSprites.Length - 1) {
-				currentTypeID = currentType.ToString () + currentTier.ToString ();
+			if (current_Tier < typeSprites.Length - 1) {
+				//currentTypeID = currentType.ToString () + currentTier.ToString ();
+                currentTypeID = currentType.ToString() + ((GemTier)current_Tier).ToString();
 			} else {
 				currentTypeID = currentType.ToString () + maxTier;
 			}

@@ -24,7 +24,7 @@ public class BoardBg : MonoBehaviour
 				if ((r % 2 == 0 && c % 2 == 0) || (r % 2 != 0 && c % 2 != 0)) {
 					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [0];
 				} else {
-					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [0];
+					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [1];
 				}
 				tempTileBG.transform.SetParent (tileBgHolder, false);
                 tileBgTable[c, r] = tempTileBG;

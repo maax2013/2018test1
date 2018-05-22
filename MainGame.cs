@@ -23,7 +23,7 @@ public class MainGame : MonoBehaviour
 		cdTimer.gameObject.SetActive (false);
 
 		initBoardBG ();
-		//initUnits ();
+		initUnits ();
 	}
 
 	void initBoardBG ()
