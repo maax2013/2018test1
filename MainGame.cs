@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//using System.Collections;
+//using System.Collections.Generic;
 using UnityEngine;
 
 public class MainGame : MonoBehaviour
 {
+    public Blueprint blueprint;
 	[SerializeField] CountDownTimeBar cdTimer;
 	[SerializeField] int boardColumns = 7;
 	[SerializeField] int boardRows = 8;
@@ -22,7 +23,7 @@ public class MainGame : MonoBehaviour
 		cdTimer.gameObject.SetActive (false);
 
 		initBoardBG ();
-		initUnits ();
+		//initUnits ();
 	}
 
 	void initBoardBG ()
@@ -31,6 +32,9 @@ public class MainGame : MonoBehaviour
 		boardBgCtr.createBoardTiles_ByRowColumn (boardColumns, boardRows);
 
 		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 2f);
+
+        blueprint = GetComponent<Blueprint>();
+        boardBgCtr.applyBlueprint(blueprint.getBlueprint());
 	}
 
 	void initUnits ()
