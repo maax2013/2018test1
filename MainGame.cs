@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MainGame : MonoBehaviour
 {
-    public Blueprint blueprint;
 	[SerializeField] CountDownTimeBar cdTimer;
 	[SerializeField] int boardColumns = 7;
 	[SerializeField] int boardRows = 8;
@@ -12,6 +11,7 @@ public class MainGame : MonoBehaviour
 
 	UnitsManager unitsManager;
 	BoardBg boardBgCtr;
+    string[,] blueprint;
 
 	// Use this for initialization
 	void Start ()
@@ -21,6 +21,8 @@ public class MainGame : MonoBehaviour
 
 		cdTimer.gameObject.transform.localPosition = new Vector3 (0f, boardOffY + 1f, 0f);
 		cdTimer.gameObject.SetActive (false);
+
+        blueprint = GetComponent<Blueprint>().getBlueprint();
 
 		initBoardBG ();
 		initUnits ();
@@ -33,8 +35,7 @@ public class MainGame : MonoBehaviour
 
 		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 2f);
 
-        blueprint = GetComponent<Blueprint>();
-        boardBgCtr.applyBlueprint(blueprint.getBlueprint());
+        boardBgCtr.applyBlueprint(blueprint);
 	}
 
 	void initUnits ()
@@ -46,6 +47,7 @@ public class MainGame : MonoBehaviour
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
 		unitsManager.passCDTimer (cdTimer);
+        unitsManager.passBlueprint(blueprint);
 
 //		unitsManager.collapseAll_matches_OnBoard ();
 		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();

@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//using System.Collections;
+//using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitsManager : MonoBehaviour
@@ -11,6 +11,7 @@ public class UnitsManager : MonoBehaviour
 	Block blockCtr;
 	BoardFall boardFall;
 	BoardMatch boardMatch;
+    BoardCompose boardCompose;
 	AllUnitTypes allTypes;
 	DragDrop dragDrop;
 
@@ -29,6 +30,7 @@ public class UnitsManager : MonoBehaviour
 		blockCtr = GetComponent<Block> ();
 		boardMatch = GetComponent<BoardMatch> ();
 		boardFall = GetComponent<BoardFall> ();
+        boardCompose = GetComponent<BoardCompose>();
 		allTypes = GetComponent<AllUnitTypes> ();
 		dragDrop = GetComponent<DragDrop> ();
 	}
@@ -67,6 +69,9 @@ public class UnitsManager : MonoBehaviour
 	{
 		cdTimer = cdt;
 	}
+    public void passBlueprint(string[,] bp){
+        boardCompose.setBlueprint(bp);
+    }
 
 
 
@@ -141,7 +146,6 @@ public class UnitsManager : MonoBehaviour
 		if (obj.GetComponent<Unit> () != null) {
 			cueUnit = obj.GetComponent<Unit> ();
 			cueUnit.startDrag ();
-			DragDrop dragDrop = GetComponent<DragDrop> ();
 			dragDrop.readyDrag (cueUnit);
 			InputControl.onDrag -= onDrag;
 			InputControl.onDrag += onDrag;
@@ -238,7 +242,13 @@ public class UnitsManager : MonoBehaviour
 	{
 		unitsTable = updatedTable;
 		//		debugBoard ();
-		readyForInteraction ();
+        if(boardCompose.compositionDone_onBoard(unitsTable)){
+            //TODO: level complete
+            Debug.Log("levle complete!!!!!");
+        }else{
+            readyForInteraction();
+        }
+		
 	}
 
 	void handleOnNeedBoardFall (Unit[,] updatedTable)

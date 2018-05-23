@@ -1,7 +1,7 @@
 ﻿public class Blueprint001 : Blueprint
 {
-	string S1 = GemType.Sapphire.ToString () + GemTier._Tier3.ToString();
-	string s2 = GemType.Gold.ToString () + GemTier._Tier1.ToString();
+	string S1 = GemType.Sapphire.ToString () + GemTier._Tier2.ToString();
+    string s2 = GemType.Sapphire.ToString () + GemTier._Tier1.ToString();
 
 	protected override void init ()
 	{

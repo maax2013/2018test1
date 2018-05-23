@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//using System.Collections;
+//using System.Collections.Generic;
 using UnityEngine;
 
 public class DragDrop : MonoBehaviour
@@ -13,11 +13,6 @@ public class DragDrop : MonoBehaviour
 	Vector2Int lastTileCoord;
 	Vector2Int nextTileCoord;
 
-	// Use this for initialization
-	void Start ()
-	{
-		
-	}
 
 	public void init (Unit[,] table)
 	{
