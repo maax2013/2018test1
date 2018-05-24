@@ -12,12 +12,12 @@ public class BoardBg : MonoBehaviour
     [SerializeField] Transform tileSocketHolder;
 
 	GameObject tempTileBG;
-    GameObject[,] tileBgTable;
-    string[,] blueprint;
+    //GameObject[,] tileBgTable;
+    //string[,] blueprint;
 
 	public void createBoardTiles_ByRowColumn (int column, int row)
 	{
-        tileBgTable = new GameObject[column, row];
+        //tileBgTable = new GameObject[column, row];
 		for (int c = 0; c < column; c++) {
 			for (int r = 0; r < row; r++) {
 				tempTileBG = Instantiate (cellBgPrefab, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
@@ -27,7 +27,7 @@ public class BoardBg : MonoBehaviour
 					tempTileBG.GetComponent<SpriteRenderer> ().sprite = sprites [1];
 				}
 				tempTileBG.transform.SetParent (tileBgHolder, false);
-                tileBgTable[c, r] = tempTileBG;
+                //tileBgTable[c, r] = tempTileBG;
 			}
 		}
 	}
@@ -38,7 +38,7 @@ public class BoardBg : MonoBehaviour
 	}
 
     public void applyBlueprint(string[,] bp){
-        blueprint = bp;
+        //blueprint = bp;
         for (int c = 0; c < bp.GetLength(0); c++)
         {
             for (int r = 0; r < bp.GetLength(1); r++)

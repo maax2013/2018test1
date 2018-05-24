@@ -5,7 +5,7 @@ public class AllUnitTypes : MonoBehaviour
 
 	[System.Serializable] class SpriteArray
 	{
-		public GemType gemType;
+        public GemType gemType;
 		public Sprite[] typeSpriteArray;
 	}
 

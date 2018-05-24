@@ -6,8 +6,8 @@ public class DragDrop : MonoBehaviour
 {
 	public event System.Action<Vector2Int> OnMove;
 
-	Unit[,] unitsTable;
-	Unit cueUnit;
+	//Unit[,] unitsTable;
+	//Unit cueUnit;
 	float offX;
 	float offY;
 	Vector2Int lastTileCoord;
@@ -16,7 +16,7 @@ public class DragDrop : MonoBehaviour
 
 	public void init (Unit[,] table)
 	{
-		unitsTable = table;
+		//unitsTable = table;
 		Transform board = table [0, 0].transform.parent;
 		offX = board.position.x;
 		offY = board.position.y;
@@ -24,7 +24,7 @@ public class DragDrop : MonoBehaviour
 
 	public void readyDrag (Unit u)
 	{
-		cueUnit = u;
+		//cueUnit = u;
 		lastTileCoord = new Vector2Int (u.CurrentColumn, u.CurrentRow);
 	}
 
@@ -34,10 +34,10 @@ public class DragDrop : MonoBehaviour
 //		print (nextTileCoord - lastTileCoord);
 		Vector2Int distance = nextTileCoord - lastTileCoord;
 		if (Mathf.Abs (distance.x) > 0 || Mathf.Abs (distance.y) > 0) {
+            lastTileCoord = nextTileCoord;
 			if (OnMove != null) {
 				OnMove (new Vector2Int (distance.x, distance.y));
 			}
-			lastTileCoord = nextTileCoord;
 		}
 	}
 

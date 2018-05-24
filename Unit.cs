@@ -53,6 +53,7 @@ public class Unit : MonoBehaviour
 	Coroutine moveCoroutine;
 	Coroutine popCoroutine;
 	float fallSpeed = 0.1f;
+    const float dragZ = -0.5f;
 
 
 	// Use this for initialization
@@ -97,10 +98,13 @@ public class Unit : MonoBehaviour
 		textObj.GetComponent<TextMesh> ().text = t;
 	}
 
+    public float getUnitDragZ(){
+        return dragZ;
+    }
 	public void startDrag ()
 	{
 		testMark (true);
-		transform.localPosition += new Vector3 (0, 0, -1);
+		transform.localPosition += new Vector3 (0f, 0f, dragZ);
 	}
 
 	public void stopDrag ()
@@ -122,7 +126,7 @@ public class Unit : MonoBehaviour
 	void resetLocalPos ()
 	{
 		StopAllCoroutines ();
-		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
+		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0f);
 	}
 
 	IEnumerator moveBounceTo (Vector2Int v2)

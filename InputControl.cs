@@ -4,21 +4,29 @@ using UnityEngine.EventSystems;
 
 //using System.Collections;
 
-public class InputControl : MonoBehaviour,  IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class InputControl : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	//	[SerializeField] Camera mainCam;
-	public bool inputEnabled = false;
+    public bool InputEnabled { get; set; }
 
-	//	public event System.Action<GameObject> OnTouch;
+    public event System.Action<GameObject, Vector3> onDragStart;
+    public event System.Action<Vector3> onDragging;
+    public event System.Action onDragEnd;
 
-	public delegate void MyTouchEvent (GameObject obj, Vector3 pos);
+    //public delegate void MyTouchEvent(GameObject obj, Vector3 pos);
 
-	public static event MyTouchEvent onDragStart;
-	public static event MyTouchEvent onDrag;
-	public static event MyTouchEvent onDragEnd;
+    //public event MyTouchEvent onDragStart;
+    //public event MyTouchEvent onDragging;
+    //public event MyTouchEvent onDragEnd;
 
-	//	Ray ray;
-	//	RaycastHit hit;
+
+    Bounds gameBoardBoundary;
+    bool insideBoardBoundary;
+    Vector3 pointerWorldPosition;
+
+    public void passBoundary(Bounds b){
+        gameBoardBoundary = b;
+    }
 
 	void Start ()
 	{
@@ -33,64 +41,46 @@ public class InputControl : MonoBehaviour,  IPointerDownHandler, IBeginDragHandl
 		}
 	}
 
-	public void OnPointerDown (PointerEventData eventData)
+    public void OnPointerDown (PointerEventData eventData)
 	{
 //		Debug.Log ("Clicked: " + eventData.pointerCurrentRaycast.gameObject.name);
 	}
 
-	public void OnBeginDrag (PointerEventData eventData)
+    public void OnBeginDrag (PointerEventData eventData)
 	{
-//		Debug.Log ("Drag Begin");
-		if (onDragStart != null) {
-			onDragStart (eventData.pointerCurrentRaycast.gameObject, eventData.pointerCurrentRaycast.worldPosition);
-		}
+        if(InputEnabled){
+            //Debug.Log ("Drag Begin");
+            pointerWorldPosition = eventData.pointerCurrentRaycast.worldPosition;
+            insideBoardBoundary = BoardUtilities.pointerInsideBoundary(pointerWorldPosition, gameBoardBoundary);
+            if(insideBoardBoundary){
+                if (onDragStart != null)
+                {
+                    onDragStart(eventData.pointerCurrentRaycast.gameObject, pointerWorldPosition);
+                }
+            }
+
+        }
+
 	}
 
 	public void OnDrag (PointerEventData eventData)
 	{
 //		Debug.Log ("Dragging");
 //		Debug.Log (eventData.pointerCurrentRaycast.worldPosition);
-		if (onDrag != null) {
-			onDrag (null, eventData.pointerCurrentRaycast.worldPosition);
+        pointerWorldPosition = eventData.pointerCurrentRaycast.worldPosition;
+        insideBoardBoundary = BoardUtilities.pointerInsideBoundary(pointerWorldPosition, gameBoardBoundary);
+        if (onDragging != null && InputEnabled && insideBoardBoundary) {
+            onDragging (pointerWorldPosition);
 		}
 	}
 
 	public void OnEndDrag (PointerEventData eventData)
 	{
 //		Debug.Log ("Drag Ended");
-		if (onDragEnd != null) {
-			onDragEnd (null, eventData.pointerCurrentRaycast.worldPosition);
+        if (onDragEnd != null && InputEnabled) {
+			onDragEnd ();
 		}
 	}
 
-	//	// Update is called once per frame
-	//	void Update ()
-	//	{
-	//		if (inputEnabled) {
-	//			// touch devices
-	//			if (Input.touchSupported) {
-	//				if (Input.touchCount > 0 && Input.GetTouch (0).phase == TouchPhase.Began) {
-	//					ray = mainCam.ScreenPointToRay (Input.GetTouch (0).position);
-	//					if (Physics.Raycast (ray, out hit)) {
-	//						if (OnTouch != null) {
-	//							OnTouch (hit.collider.gameObject);
-	//						}
-	//					}
-	//				}
-	//			} else {
-	//				// mouse
-	//				if (Input.GetMouseButtonDown (0)) {
-	////					Debug.Log (Input.mousePosition);
-	//					ray = mainCam.ScreenPointToRay (Input.mousePosition);
-	//					if (Physics.Raycast (ray, out hit)) {
-	////						Debug.Log ("hit");
-	//						if (OnTouch != null) {
-	//							OnTouch (hit.collider.gameObject);
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
 }
 

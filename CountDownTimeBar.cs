@@ -3,17 +3,20 @@ using System.Collections;
 
 public class CountDownTimeBar : MonoBehaviour
 {
+    [SerializeField] float defaultTime = 5f;
 	//	[SerializeField] GameObject cdTimerPrefab;
 	[SerializeField] GameObject barFill;
 	//	[SerializeField] Transform timerHolder;
 
 	public event System.Action onTimesUp;
-	//	public event System.Action onCountDownAlert;
+    //	public event System.Action onCountDownAlert;
 
+    float totalTimeForCurrentRound = 0f;
+    float extraTimeForCurrentRound = 0f;
 	bool isRuning = false;
 
 	float elapsedTime = 0f;
-	float alertTime = 1f;
+	const float alertTime = 1f;
 	bool isAlertState;
 	Vector3 startingScale = new Vector3 (1f, 1f, 1f);
 	Vector3 targetScale = new Vector3 (0f, 1f, 1f);
@@ -28,19 +31,25 @@ public class CountDownTimeBar : MonoBehaviour
 	{
 		return isRuning;
 	}
+    public void addExtraTimeToCurrentRound(float t){
+        extraTimeForCurrentRound = t;
+    }
 
-	public void startCountDown (float cdTime)
+	public void startCountDown ()
 	{
 		isAlertState = false;
 		gameObject.SetActive (true);
 		isRuning = true;
-		StartCoroutine (depleteTimeBar_overTime (cdTime));
+        totalTimeForCurrentRound = extraTimeForCurrentRound > 0f ? defaultTime + extraTimeForCurrentRound : defaultTime;
+        StartCoroutine (depleteTimeBar_overTime (totalTimeForCurrentRound));
 	}
 
 	public void stopTimer ()
 	{
+        StopAllCoroutines();
 		gameObject.SetActive (false);
 		isRuning = false;
+        resetTime();
 	}
 
 	IEnumerator depleteTimeBar_overTime (float duration)
@@ -69,5 +78,10 @@ public class CountDownTimeBar : MonoBehaviour
 			isAlertState = true;
 		}
 	}
+
+    void resetTime(){
+        extraTimeForCurrentRound = 0f;
+        totalTimeForCurrentRound = 0f;
+    }
 }
 

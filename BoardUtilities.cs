@@ -123,4 +123,13 @@ public static class BoardUtilities
 		}
 		return targetT;
 	}
+
+    public static bool pointerInsideBoundary(Vector3 p, Bounds boundary)
+    {
+        if (boundary.Contains(p))
+        {
+            return true;
+        }
+        return false;
+    }
 }
