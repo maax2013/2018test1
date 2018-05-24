@@ -78,7 +78,7 @@ public class InputControl_board : MonoBehaviour
     {
         screenRay = Camera.main.ScreenPointToRay(v);
         Physics2D.GetRayIntersectionNonAlloc(screenRay, hitResults);
-        Debug.Log(hitResults[0].collider);
+        //Debug.Log(hitResults[0].collider);
         if (hitResults[0].collider != null)
         {
             pointerWorldPosition = hitResults[0].point;
@@ -105,8 +105,7 @@ public class InputControl_board : MonoBehaviour
             }
             else
             {
-                //TODO: out of boundary
-                Debug.Log("out of boundary");
+                //Debug.Log("out of boundary");
                 doDragEnd();
             }
         }

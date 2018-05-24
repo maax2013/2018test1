@@ -35,6 +35,7 @@ public class CountDownTimeBar : MonoBehaviour
         extraTimeForCurrentRound = t;
     }
 
+    //TODO: same name, different signature
 	public void startCountDown ()
 	{
 		isAlertState = false;
