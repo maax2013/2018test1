@@ -13,6 +13,10 @@ public class InputControl_board : MonoBehaviour
     public event System.Action<Vector3> onDragging;
     public event System.Action onDragEnd;
 
+    bool dragEnabled;
+    bool itemEnabled;
+    bool menuEnabled;
+
     Bounds gameBoardBoundary;
     float tableUnitZ;
     bool insideBoardBoundary;
@@ -21,12 +25,31 @@ public class InputControl_board : MonoBehaviour
     Ray screenRay;
     RaycastHit2D[] hitResults = new RaycastHit2D[1];
 
-    public void createBoundary(int column, int row, float unitZ)
+    public void createBoardBoundary(int column, int row, float unitZ)
     {
         /*make sure the boundary is on the same z index as the units on board*/
         tableUnitZ = unitZ;
         gameBoardBoundary = new Bounds(Vector3.zero, new Vector3(column, row, tableUnitZ));
         //Debug.Log(hitResults[0].transform);
+    }
+
+    public void EnableAll(){
+        
+    }
+
+    public void EnableDrag(){
+        
+    }
+    public void DisableDrag(){
+        
+    }
+    public void EnableItem()
+    {
+
+    }
+    public void DisableItem()
+    {
+
     }
 
 
@@ -112,10 +135,13 @@ public class InputControl_board : MonoBehaviour
     }
     void doDragEnd()
     {
-        hitResults = new RaycastHit2D[1];
-        //Debug.Log(hitResults[0].collider);
-        //InputEnabled = false;
-        fireOnDragEnd();
+        if (hitResults[0].collider != null)
+        {
+            hitResults = new RaycastHit2D[1];
+            //Debug.Log(hitResults[0].collider);
+            //InputEnabled = false;
+            fireOnDragEnd();
+        }
     }
 
     void fireOnDragStart(GameObject o)

@@ -17,6 +17,7 @@ public class BoardFall : MonoBehaviour
 	
 	int totalFallingUnits = 0;
 	int totalCompletions = 0;
+    const float fallDelay = 0.01f;
 
 	public void fall (Unit[,] units)
 	{
@@ -134,8 +135,8 @@ public class BoardFall : MonoBehaviour
 
 				readyToFallUnitsInColumn.RemoveAt (0);
 
-				//			yield return new WaitForSeconds (0.05f);
-				yield return new WaitForEndOfFrame ();
+				yield return new WaitForSeconds (fallDelay);
+				//yield return new WaitForEndOfFrame ();
 			}
 		}
 	

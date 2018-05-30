@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 //using System.Collections;
 
 public class BoardSwapUnits : MonoBehaviour
@@ -15,7 +15,7 @@ public class BoardSwapUnits : MonoBehaviour
     public void init(Unit[,] table){
         unitsTable = table;
         inputCtr = GetComponent<InputControl_board>();
-        inputCtr.createBoundary(unitsTable.GetLength(0), unitsTable.GetLength(1), unitsTable[0,0].transform.position.z);
+        inputCtr.createBoardBoundary(unitsTable.GetLength(0), unitsTable.GetLength(1), unitsTable[0,0].transform.position.z);
         dragDrop = GetComponent<DragDrop>();
         dragDrop.init(unitsTable);
     }

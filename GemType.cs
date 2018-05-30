@@ -21,3 +21,12 @@ public enum GemTier
     _MaxTier
 }
 
+public enum usefulItemType
+{
+    switchUnit,
+    upgradeUnit,
+    shuffleBoard,
+    addTime,
+    exchange
+}
+

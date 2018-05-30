@@ -187,7 +187,15 @@ public class UnitsManager : MonoBehaviour
 
 //		unitsToCheck [0].testMark (true);
 //		get_LinkedUnitsGroup_of (unitsToCheck [0]);
-		collapseAll_matches_OnBoard ();
+		//collapseAll_matches_OnBoard ();
+        if (Time.timeScale > 0f)
+        {
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+        }
 	}
 
 	void debugBoard ()
