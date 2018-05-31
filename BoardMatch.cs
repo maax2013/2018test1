@@ -203,13 +203,13 @@ public class BoardMatch : MonoBehaviour
 	}
 
 
-	void addAllMatch4s_OnBoard_ToGroup (Unit[,] unitsTable, List<Unit[]> candidatesGroups)
+	void addAllMatch4s_OnBoard_ToGroup (Unit[,] uTable, List<Unit[]> candidatesGroups)
 	{
-		List<Unit> allUnitsList = BoardUtilities.getAllUnitsList_onTable (unitsTable);
+		List<Unit> allUnitsList = BoardUtilities.getAllUnitsList_onTable (uTable);
 
 		while (allUnitsList.Count > 0) {
 			Unit tempU = allUnitsList [0];
-			Unit[] match4s_TopRight = BoardUtilities.getmatch4Units_towards_onTable (tempU, new Vector2Int (1, 1), unitsTable);
+			Unit[] match4s_TopRight = BoardUtilities.getmatch4Units_towards_onTable (tempU, new Vector2Int (1, 1), uTable);
 			if (match4s_TopRight != null) {
 				candidatesGroups.Add (match4s_TopRight);
 				foreach (Unit U in match4s_TopRight) {
