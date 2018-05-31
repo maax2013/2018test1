@@ -1,26 +1,26 @@
-using UnityEngine;
+//using UnityEngine;
 
-public class BoardCompose : MonoBehaviour
+public static class BoardCompose
 {
-    string[,] blueprint = null;
+    static string[,] blueprint = null;
 
-    public void setBlueprint(string[,] bp)
+    static public void SetBlueprint(string[,] bp)
     {
         blueprint = bp;
     }
 
-    public bool compositionDone_onBoard(Unit[,] table)
+    static public bool CompositionDone_onBoard(Unit[,] table)
     {
         if(blueprint != null){
-            return compareBoard_withBlueprint(table, blueprint);
+            return CompareBoard_withBlueprint(table, blueprint);
         }else{
-            Debug.Log("no blueprint found");
+            //Debug.Log("no blueprint found");
             throw new System.Exception("no blueprint found");
         }
 
     }
 
-    bool compareBoard_withBlueprint(Unit[,] table, string[,] bp)
+    static bool CompareBoard_withBlueprint(Unit[,] table, string[,] bp)
     {
         int column = table.GetLength(0);
         int row = table.GetLength(1);

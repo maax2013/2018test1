@@ -1,20 +1,18 @@
-﻿//using System.Collections;
-//using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class DragDrop : MonoBehaviour
+public static class DragDrop
 {
-	public event System.Action<Vector2Int> OnMove;
+	public static event System.Action<Vector2Int> OnMove;
 
 	//Unit[,] unitsTable;
 	//Unit cueUnit;
-	float offX;
-	float offY;
-	Vector2Int lastTileCoord;
-	Vector2Int nextTileCoord;
+    static float offX;
+    static float offY;
+    static Vector2Int lastTileCoord;
+    static Vector2Int nextTileCoord;
 
 
-	public void init (Unit[,] table)
+    public static void ApplyOffset (Unit[,] table)
 	{
 		//unitsTable = table;
 		Transform board = table [0, 0].transform.parent;
@@ -22,13 +20,13 @@ public class DragDrop : MonoBehaviour
 		offY = board.position.y;
 	}
 
-	public void readyDrag (Unit u)
+    public static void ReadyForDrag (Unit u)
 	{
 		//cueUnit = u;
 		lastTileCoord = new Vector2Int (u.CurrentColumn, u.CurrentRow);
 	}
 
-	public void dragMove (Vector3 pos)
+    public static void dragMove (Vector3 pos)
 	{
 		nextTileCoord = convertPosToTableCoord (pos);
 //		print (nextTileCoord - lastTileCoord);
@@ -41,7 +39,7 @@ public class DragDrop : MonoBehaviour
 		}
 	}
 
-	Vector2Int convertPosToTableCoord (Vector3 pos)
+    static Vector2Int convertPosToTableCoord (Vector3 pos)
 	{
 		float tempX = pos.x - offX;
 		float tempY = pos.y - offY;

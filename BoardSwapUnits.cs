@@ -7,7 +7,6 @@ public class BoardSwapUnits : MonoBehaviour
 
     CountDownTimeBar cdTimer;
     InputControl_board inputCtr;
-    DragDrop dragDrop;
 
     Unit cueUnit;
     Unit[,] unitsTable;
@@ -16,8 +15,7 @@ public class BoardSwapUnits : MonoBehaviour
         unitsTable = table;
         inputCtr = GetComponent<InputControl_board>();
         inputCtr.createBoardBoundary(unitsTable.GetLength(0), unitsTable.GetLength(1), unitsTable[0,0].transform.position.z);
-        dragDrop = GetComponent<DragDrop>();
-        dragDrop.init(unitsTable);
+        DragDrop.ApplyOffset(unitsTable);
     }
 
     public void passCDTimer(CountDownTimeBar cdT){
@@ -44,7 +42,7 @@ public class BoardSwapUnits : MonoBehaviour
         {
             cueUnit = obj.GetComponent<Unit>();
             cueUnit.startDrag();
-            dragDrop.readyDrag(cueUnit);
+            DragDrop.ReadyForDrag(cueUnit);
 
             inputCtr.onDragging -= handleOnDragging;
             inputCtr.onDragging += handleOnDragging;
@@ -57,13 +55,13 @@ public class BoardSwapUnits : MonoBehaviour
     void handleOnDragging(Vector3 pos){
         cueUnit.transform.position = pos + new Vector3(0f, 0f, cueUnit.getUnitDragZ());
 
-        dragDrop.OnMove -= startCDTimer;
-        dragDrop.OnMove += startCDTimer;
+        DragDrop.OnMove -= startCDTimer;
+        DragDrop.OnMove += startCDTimer;
 
-        dragDrop.OnMove -= switchUnit_Towards;
-        dragDrop.OnMove += switchUnit_Towards;
+        DragDrop.OnMove -= switchUnit_Towards;
+        DragDrop.OnMove += switchUnit_Towards;
 
-        dragDrop.dragMove(pos);
+        DragDrop.dragMove(pos);
     }
 
     void handleOnDragEnd(){

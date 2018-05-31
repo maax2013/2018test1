@@ -10,7 +10,6 @@ public class UnitsManager : MonoBehaviour
 	Block blockCtr;
 	BoardFall boardFall;
 	BoardMatch boardMatch;
-    BoardCompose boardCompose;
     BoardSwapUnits boardSwapUnits;
 	AllUnitTypes allTypes;
 
@@ -26,7 +25,6 @@ public class UnitsManager : MonoBehaviour
 		blockCtr = GetComponent<Block> ();
 		boardMatch = GetComponent<BoardMatch> ();
 		boardFall = GetComponent<BoardFall> ();
-        boardCompose = GetComponent<BoardCompose>();
         boardSwapUnits = GetComponent<BoardSwapUnits>();
 		allTypes = GetComponent<AllUnitTypes> ();
 	}
@@ -66,7 +64,7 @@ public class UnitsManager : MonoBehaviour
 		boardSwapUnits.passCDTimer(cdt);
 	}
     public void passBlueprint(string[,] bp){
-        boardCompose.setBlueprint(bp);
+        BoardCompose.SetBlueprint(bp);
     }
 
     //public void addEtraSwappingTime(float t){
@@ -126,7 +124,7 @@ public class UnitsManager : MonoBehaviour
 	{
 		unitsTable = updatedTable;
 		//		debugBoard ();
-        if(boardCompose.compositionDone_onBoard(unitsTable)){
+        if(BoardCompose.CompositionDone_onBoard(unitsTable)){
             //TODO: level complete
             Debug.Log("levle complete!!!!!");
         }else{

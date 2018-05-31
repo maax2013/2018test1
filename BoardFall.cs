@@ -73,7 +73,7 @@ public class BoardFall : MonoBehaviour
 		}
 	}
 
-	void addSkyfallUnits_toFallingColumns (List<List<Unit>> readyToFallColumnGroups)
+	void addSkyfallUnits_toFallingColumns (List<List<Unit>> columnGroups)
 	{
 		//		print ("==================");
 		//		print (readyToFallColumnGroups.Count + "==");
@@ -88,7 +88,7 @@ public class BoardFall : MonoBehaviour
 		int boardHeight = unitsTable.GetLength (1);
 		Unit tempU;
 	
-		for (int n = 0; n < readyToFallColumnGroups.Count; n++) {
+        for (int n = 0; n < columnGroups.Count; n++) {
 			//			print (readyToFallColumnGroups [n].Count);
 			skyfallStack = 0;
 			fallingColumn = skyfallColumnIndexes [n];
@@ -104,7 +104,7 @@ public class BoardFall : MonoBehaviour
 				tempU.fallFrom = new Vector2Int (fallingColumn, skyfall_y);
 				tempU.fallTo = new Vector2Int (fallingColumn, skyfall_y - emptyCellsInColumn);
 
-				readyToFallColumnGroups [n].Add (tempU);
+                columnGroups [n].Add (tempU);
 				skyfallStack++;
 			}
 		}
