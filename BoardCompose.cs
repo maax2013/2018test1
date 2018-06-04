@@ -28,7 +28,7 @@ public static class BoardCompose
         {
             for (int r = 0; r < row; r++)
             {
-                if(table[c,r].UnitID != bp[c,r] && bp[c,r] != null){
+                if(table[c,r].GetUnitID() != bp[c,r] && bp[c,r] != null){
                     return false;
                 }
             }

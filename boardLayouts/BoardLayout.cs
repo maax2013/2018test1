@@ -1,21 +1,23 @@
 using UnityEngine;
+//using System.Collections;
 
-public class Blueprint : MonoBehaviour
+public class BoardLayout : MonoBehaviour
 {
     protected string __ = null;
-    protected string[,] blueprint;
+    protected string XX = SpecialType.Empty.ToString();
+    protected string[,] layout;
 
 
 
-    public string[,] getBlueprint()
+    public string[,] GetBoardLayout()
     {
-        initBlueprint();
-        return BoardUtilities.flipStringTableCoord(blueprint);
+        InitBoardLayout();
+        return BoardUtilities.flipStringTableCoord(layout);
     }
 
-    protected virtual void initBlueprint()
+    protected virtual void InitBoardLayout()
     {
-        blueprint = new string[,] {
+        layout = new string[,] {
             { __, __, __, __, __, __ },
             { __, __, __, __, __, __ },
             { __, __, __, __, __, __ },
@@ -25,5 +27,4 @@ public class Blueprint : MonoBehaviour
             { __, __, __, __, __, __ }
         };
     }
-
 }

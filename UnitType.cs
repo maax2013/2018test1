@@ -75,8 +75,7 @@ public class UnitType
 
 		} else if (typeSprites.Length < 1) {
 			/*no sprite images added to Editor*/
-			Debug.Log ("no gem image added to Editor");
-			//TODO: throw Exception;
+            throw new System.Exception("no gem image added to Editor");
 		} else {
 			/*only one sprite image, meaning no tier*/
 			currentTypeID = currentType.ToString () + noTier;
@@ -87,7 +86,12 @@ public class UnitType
 	void updateTypeInfo ()
 	{
 		currentTypeID = createTypeID (currentTier);
-		currentSprite = typeSprites [currentTier];
+        if(typeSprites[currentTier]!= null){
+            currentSprite = typeSprites[currentTier];
+        }else{
+            throw new System.Exception("no gem image added to Editor");
+        }
+		
 	}
 }
 

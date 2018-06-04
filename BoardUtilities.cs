@@ -86,7 +86,7 @@ public static class BoardUtilities
 
 	public static bool hasSameID (Unit u1, Unit u2)
 	{
-		if (u1.UnitID == u2.UnitID) {
+        if (u1.GetUnitID() == u2.GetUnitID()) {
 			return true;
 		} else {
 			return false;
@@ -109,7 +109,7 @@ public static class BoardUtilities
 		table [coordX, coordY] = u;
 	}
 
-	public static string[,] flipBlueprintTableCoord (string[,] originalT)
+	public static string[,] flipStringTableCoord (string[,] originalT)
 	{
 		/*flip the inner and outer array, so the table has same coord as the gameboard*/
         /*flip y axis to match unity coord*/

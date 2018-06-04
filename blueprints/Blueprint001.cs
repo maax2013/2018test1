@@ -3,7 +3,7 @@
 	string S1 = GemType.Sapphire.ToString () + GemTier._Tier2.ToString();
     string s2 = GemType.Sapphire.ToString () + GemTier._Tier1.ToString();
 
-	protected override void init ()
+    protected override void initBlueprint ()
 	{
         blueprint = new string[,] {
             { __, __, __, __, __, __,__ },

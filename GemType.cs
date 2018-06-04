@@ -20,6 +20,10 @@ public enum GemTier
     _NoTier,
     _MaxTier
 }
+public enum SpecialType{
+    Empty,
+    Unmovable
+}
 
 public enum usefulItemType
 {

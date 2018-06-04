@@ -48,6 +48,8 @@ public class BoardSwapUnits : MonoBehaviour
             inputCtr.onDragging += handleOnDragging;
             inputCtr.onDragEnd -= handleOnDragEnd;
             inputCtr.onDragEnd += handleOnDragEnd;
+
+            //TODO: disable input/icons for items and settings
         }else{
             throw new System.Exception("dragging something else, not unit on board");
         }

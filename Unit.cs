@@ -8,17 +8,6 @@ public class Unit : MonoBehaviour
 	[SerializeField] GameObject glowObj;
 	[SerializeField] GameObject spriteObj;
 
-	string unitID;
-
-	public string UnitID {
-		get {
-			return unitID;
-		}
-		set {
-			unitID = value;
-		}
-	}
-
 	public UnitType CurrentUnitType { get; set; }
 
 	public int CurrentRow { get; set; }
@@ -49,18 +38,11 @@ public class Unit : MonoBehaviour
 
 	AllUnitTypes allTypes;
 
-
 	Coroutine moveCoroutine;
 	Coroutine popCoroutine;
 	float fallSpeed = 0.1f;
     const float dragZ = -0.5f;
 
-
-	// Use this for initialization
-	void Start ()
-	{
-		
-	}
 
 	public void initUnit (int column, int row, AllUnitTypes uTypes)
 	{
@@ -83,8 +65,12 @@ public class Unit : MonoBehaviour
 	public void randomId ()
 	{
 		CurrentUnitType = allTypes.getRandomType ();
-		updateUnitInfo ();
+		UpdateUnitSprite ();
 	}
+
+    public string GetUnitID(){
+        return CurrentUnitType.getCurrentTypeID();
+    }
 
 
 	public void updateCountText ()
@@ -113,6 +99,11 @@ public class Unit : MonoBehaviour
 //		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
 		resetLocalPos ();
 	}
+    void resetLocalPos()
+    {
+        StopAllCoroutines();
+        transform.localPosition = new Vector3(CurrentColumn, CurrentRow, 0f);
+    }
 
 	public void moveTo (Vector2Int v2)
 	{
@@ -121,12 +112,6 @@ public class Unit : MonoBehaviour
 		StartCoroutine (moveBounceTo (v2));
 //		TotalConnectedUnits = 1;
 //		updateCountText ();//--------------------------
-	}
-
-	void resetLocalPos ()
-	{
-		StopAllCoroutines ();
-		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0f);
 	}
 
 	IEnumerator moveBounceTo (Vector2Int v2)
@@ -139,15 +124,15 @@ public class Unit : MonoBehaviour
 		float overOffset = 0.1f;
 		float overX;
 		float overY;
-		if (v2.x == 0f) {
+		if (v2.x == 0) {
 			overX = 0f;
 		} else {
-			overX = v2.x > 0f ? overOffset : -overOffset;
+			overX = v2.x > 0 ? overOffset : -overOffset;
 		}
-		if (v2.y == 0f) {
+		if (v2.y == 0) {
 			overY = 0f;
 		} else {
-			overY = v2.y > 0f ? overOffset : -overOffset;
+			overY = v2.y > 0 ? overOffset : -overOffset;
 		}
 
 
@@ -180,7 +165,7 @@ public class Unit : MonoBehaviour
 	{
 		if (CurrentUnitType.isUpgradable ()) {
 			CurrentUnitType.upgradeToNextTier ();
-			updateUnitInfo ();
+			UpdateUnitSprite ();
 		} else {
 			//TODO: what to do when reach max tier
 		}
@@ -331,15 +316,9 @@ public class Unit : MonoBehaviour
 	}
 
 
-	void updateUnitInfo ()
+	void UpdateUnitSprite ()
 	{
-		unitID = CurrentUnitType.getCurrentTypeID ();
+		//unitID = CurrentUnitType.getCurrentTypeID ();
 		spriteObj.GetComponent<SpriteRenderer> ().sprite = CurrentUnitType.getCurrentSprite ();
-	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-		
 	}
 }

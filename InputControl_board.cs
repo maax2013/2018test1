@@ -13,9 +13,9 @@ public class InputControl_board : MonoBehaviour
     public event System.Action<Vector3> onDragging;
     public event System.Action onDragEnd;
 
-    bool dragEnabled;
-    bool itemEnabled;
-    bool menuEnabled;
+    //bool dragEnabled;
+    //bool itemEnabled;
+    //bool menuEnabled;
 
     Bounds gameBoardBoundary;
     float tableUnitZ;
@@ -33,24 +33,24 @@ public class InputControl_board : MonoBehaviour
         //Debug.Log(hitResults[0].transform);
     }
 
-    public void EnableAll(){
+    //public void EnableAll(){
         
-    }
+    //}
 
-    public void EnableDrag(){
+    //public void EnableDrag(){
         
-    }
-    public void DisableDrag(){
+    //}
+    //public void DisableDrag(){
         
-    }
-    public void EnableItem()
-    {
+    //}
+    //public void EnableItem()
+    //{
 
-    }
-    public void DisableItem()
-    {
+    //}
+    //public void DisableItem()
+    //{
 
-    }
+    //}
 
 
 
