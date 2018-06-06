@@ -9,21 +9,21 @@ public class UnitMerge : MonoBehaviour
     Coroutine moveCoroutine;
     Coroutine popCoroutine;
 
-    public void mergeTo_overTime_thenGone(Vector3 target, float mergeTime)
+    public void mergeTo_overTime(Vector3 target, float mergeTime)
     {
         //      if (moveCoroutine) {
         //          StopCoroutine (moveCoroutine);
         //      }
         //      moveCoroutine = StartCoroutine (moveSpriteTo_overTime (target, mergeTime));
-        moveCoroutine = StartCoroutine(mergeTo_overTime_thenInactive(target, mergeTime));
+        moveCoroutine = StartCoroutine(mergeToOverTime(target, mergeTime));
     }
 
     public void popSprite_overTime(float popTime)
     {
-        popCoroutine = StartCoroutine(popSpriteTo_overTime(popTime));
+        popCoroutine = StartCoroutine(popSpriteOverTime(popTime));
     }
 
-    IEnumerator mergeTo_overTime_thenInactive(Vector3 target, float duration)
+    IEnumerator mergeToOverTime(Vector3 target, float duration)
     {
         float elapsedTime = 0;
         Vector3 startingPos = transform.localPosition;
@@ -42,7 +42,7 @@ public class UnitMerge : MonoBehaviour
         }
     }
 
-    IEnumerator popSpriteTo_overTime(float duration)
+    IEnumerator popSpriteOverTime(float duration)
     {
         Vector3 target = new Vector3(1.3f, 1.3f, 1f);//~~~~~~~~~~~~~~~~~~~~~~~~~~~
         float elapsedTime = 0;

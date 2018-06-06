@@ -182,7 +182,7 @@ public class BoardMatch : MonoBehaviour
                 u.UMerge.OnMergeDone += checkTotalCompletions;
                 //u.UMerge.OnMergeDone -= u.HandleOnMergeDone;
                 u.UMerge.OnMergeDone += u.HandleOnMergeDone;
-                u.UMerge.mergeTo_overTime_thenGone(targetU.transform.localPosition, mergeTime);
+                u.UMerge.mergeTo_overTime(targetU.transform.localPosition, mergeTime);
             }else
             {
                 throw new System.Exception("can't find UnitMerge component");

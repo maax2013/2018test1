@@ -88,7 +88,7 @@ public class UnitsManager : MonoBehaviour
 
 	public void initBoardSwapUnits (CountDownTimeBar cdt)
 	{
-        boardSwapUnits.init(unitsTable);
+        boardSwapUnits.InitBoardSwap(unitsTable);
 		boardSwapUnits.passCDTimer(cdt);
 	}
     public void passBlueprint(string[,] bp){

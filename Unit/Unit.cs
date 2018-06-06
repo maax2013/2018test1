@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Unit : Unit_Base
 {
-	[SerializeField] GameObject spriteObj;
+    [SerializeField] SpriteRenderer UnitSprite;
 
 	public UnitType CurrentUnitType { get; set; }
 
@@ -91,6 +91,7 @@ public class Unit : Unit_Base
 
 	public void moveTo (Vector2Int v2)
 	{
+        StopAllCoroutines();
 		ResetLocalPos ();
 //		transform.localPosition = new Vector3 (transform.localPosition.x + v2.x, transform.localPosition.y + v2.y, transform.localPosition.z);
 		StartCoroutine (moveBounceTo (v2));
@@ -137,6 +138,11 @@ public class Unit : Unit_Base
 		}
 		transform.localPosition = targetPos;
 	}
+    void ResetLocalPos()
+    {
+        //StopAllCoroutines();
+        transform.localPosition = new Vector3(CurrentColumn, CurrentRow, 0f);
+    }
 
 	
 
@@ -305,6 +311,6 @@ public class Unit : Unit_Base
 	void UpdateUnitSprite ()
 	{
 		//unitID = CurrentUnitType.getCurrentTypeID ();
-		spriteObj.GetComponent<SpriteRenderer> ().sprite = CurrentUnitType.getCurrentSprite ();
+        UnitSprite.sprite = CurrentUnitType.getCurrentSprite ();
 	}
 }

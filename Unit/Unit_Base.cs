@@ -25,11 +25,6 @@ public class Unit_Base : MonoBehaviour
         CurrentRow = row;
     }
 
-    protected void ResetLocalPos()
-    {
-        StopAllCoroutines();
-        transform.localPosition = new Vector3(CurrentColumn, CurrentRow, 0f);
-    }
 
 
 
