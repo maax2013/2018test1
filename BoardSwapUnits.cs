@@ -8,7 +8,7 @@ public class BoardSwapUnits : MonoBehaviour
     CountDownTimeBar cdTimer;
     InputControl_board inputCtr;
 
-    Unit cueUnit;
+    UnitDragDrop cueUnit;
     Unit[,] unitsTable;
     float offX;
     float offY;
@@ -37,7 +37,7 @@ public class BoardSwapUnits : MonoBehaviour
         cdTimer = cdT;
     }
 
-    public void addTempEtraDraggingTime(float t)
+    public void addTempExtraDraggingTime(float t)
     {
         cdTimer.addExtraTimeToCurrentRound(t);
     }
@@ -53,16 +53,20 @@ public class BoardSwapUnits : MonoBehaviour
 
     void handleOnDragStart(GameObject obj)
     {
-        if (obj.GetComponent<Unit>() != null)
+        UnitDragDrop tempU = obj.GetComponent<UnitDragDrop>();
+        if (tempU != null)
         {
-            cueUnit = obj.GetComponent<Unit>();
-            cueUnit.startDrag();
-            DragMoveCoord.RegisterDragStartCoord(cueUnit.CurrentColumn, cueUnit.CurrentRow);
+            if(tempU.thisUnit != null){
+                cueUnit = tempU;
+                cueUnit.startDrag();
+                DragMoveCoord.RegisterDragStartCoord(cueUnit.thisUnit.CurrentColumn, cueUnit.thisUnit.CurrentRow);
 
-            inputCtr.onDragging -= handleOnDragging;
-            inputCtr.onDragging += handleOnDragging;
-            inputCtr.onDragEnd -= handleOnDragEnd;
-            inputCtr.onDragEnd += handleOnDragEnd;
+                inputCtr.onDragging -= handleOnDragging;
+                inputCtr.onDragging += handleOnDragging;
+                inputCtr.onDragEnd -= handleOnDragEnd;
+                inputCtr.onDragEnd += handleOnDragEnd;
+            }
+
 
             //TODO: disable input/icons for items and settings
         }else{
@@ -117,7 +121,7 @@ public class BoardSwapUnits : MonoBehaviour
 
     void switchUnit_Towards(Vector2Int direction)
     {
-        Unit targetUnit = BoardUtilities.getUnitOnTable(cueUnit.CurrentColumn + direction.x, cueUnit.CurrentRow + direction.y, unitsTable);
+        Unit targetUnit = BoardUtilities.getUnitOnTable(cueUnit.thisUnit.CurrentColumn + direction.x, cueUnit.thisUnit.CurrentRow + direction.y, unitsTable);
         if (targetUnit == null)
         {
             //Debug.Log("out!");
@@ -127,7 +131,7 @@ public class BoardSwapUnits : MonoBehaviour
         {
             /*only need to move the target unit, the cue unit is following the pointer*/
             targetUnit.moveTo(new Vector2Int(-direction.x, -direction.y));
-            BoardUtilities.switchUnitsCoord(cueUnit, targetUnit, unitsTable);
+            //BoardUtilities.switchUnitsCoord(cueUnit.thisUnit, targetUnit, unitsTable);//+++++++++++
 
             //          tryMakeBlock (cueUnit);
             //          tryMakeBlock (targetUnit);

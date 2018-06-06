@@ -35,12 +35,13 @@ public class Unit : Unit_Base
 	//Coroutine moveCoroutine;
 	//Coroutine popCoroutine;
 	float fallSpeed = 0.1f;
-    const float dragZ = -0.5f;
+    //const float dragZ = -0.5f;
 
 
 	public void InitNormalUnit (int column, int row, AllUnitTypes uTypes)
 	{
         UMerge = GetComponent<UnitMerge>();
+        UDragDrop = GetComponent<UnitDragDrop>();
 
 //		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
@@ -73,21 +74,21 @@ public class Unit : Unit_Base
 
 	
 
-	public void startDrag ()
-	{
-		testMark (true);
-		transform.localPosition += new Vector3 (0f, 0f, dragZ);
-	}
-    public void dragging(Vector3 pos){
-        transform.position = pos + new Vector3(0f, 0f, dragZ);
-    }
+//	public void startDrag ()
+//	{
+//		testMark (true);
+//		transform.localPosition += new Vector3 (0f, 0f, dragZ);
+//	}
+//    public void dragging(Vector3 pos){
+//        transform.position = pos + new Vector3(0f, 0f, dragZ);
+//    }
 
-	public void stopDrag ()
-	{
-		testMark (false);
-//		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
-		ResetLocalPos ();
-	}
+//	public void stopDrag ()
+//	{
+//		testMark (false);
+////		transform.localPosition = new Vector3 (CurrentColumn, CurrentRow, 0);
+	//	//ResetLocalPos ();
+	//}
 
 	public void moveTo (Vector2Int v2)
 	{

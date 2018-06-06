@@ -18,8 +18,18 @@ public class Unit_Base : MonoBehaviour
     //public bool CanSwap { get; protected set; }
 
     public UnitMerge UMerge { get; protected set; }
+    public UnitDragDrop UDragDrop { get; protected set; }
+    void Awake()
+    {
+        Debug.Log("im awake");
+    }
 
-    public void SetUnitCoord (int column, int row)
+	void Start()
+	{
+        Debug.Log("im start");
+	}
+
+	public void SetUnitCoord (int column, int row)
     {
         CurrentColumn = column;
         CurrentRow = row;
