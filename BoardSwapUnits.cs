@@ -10,13 +10,18 @@ public class BoardSwapUnits : MonoBehaviour
 
     Unit cueUnit;
     Unit[,] unitsTable;
+    float offX;
+    float offY;
 
-    public void init(Unit[,] table){
+    public void InitBoardSwap(Unit[,] table){
         unitsTable = table;
         inputCtr = GetComponent<InputControl_board>();
         Unit tempU = GetFirstValidUnit_onTable(table);
         inputCtr.createBoardBoundary(unitsTable.GetLength(0), unitsTable.GetLength(1), tempU.transform.position.z);
-        DragDrop.ApplyOffset(tempU);
+
+        Transform board = tempU.transform.parent;
+        offX = board.position.x;
+        offY = board.position.y;
     }
     Unit GetFirstValidUnit_onTable(Unit[,] table){
         foreach (var u in table)
@@ -52,7 +57,7 @@ public class BoardSwapUnits : MonoBehaviour
         {
             cueUnit = obj.GetComponent<Unit>();
             cueUnit.startDrag();
-            DragDrop.ReadyForDrag(cueUnit);
+            DragMoveCoord.RegisterDragStartCoord(cueUnit.CurrentColumn, cueUnit.CurrentRow);
 
             inputCtr.onDragging -= handleOnDragging;
             inputCtr.onDragging += handleOnDragging;
@@ -67,13 +72,13 @@ public class BoardSwapUnits : MonoBehaviour
     void handleOnDragging(Vector3 pos){
         cueUnit.dragging(pos);
 
-        DragDrop.OnMove -= startCDTimer;
-        DragDrop.OnMove += startCDTimer;
+        DragMoveCoord.OnMove -= startCDTimer;
+        DragMoveCoord.OnMove += startCDTimer;
 
-        DragDrop.OnMove -= switchUnit_Towards;
-        DragDrop.OnMove += switchUnit_Towards;
+        DragMoveCoord.OnMove -= switchUnit_Towards;
+        DragMoveCoord.OnMove += switchUnit_Towards;
 
-        DragDrop.dragMove(pos);
+        DragMoveCoord.dragMove(pos.x - offX, pos.y - offY);
     }
 
     void handleOnDragEnd(){

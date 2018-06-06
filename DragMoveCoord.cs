@@ -1,34 +1,24 @@
 ﻿using UnityEngine;
 
-public static class DragDrop
+public static class DragMoveCoord
 {
 	public static event System.Action<Vector2Int> OnMove;
 
 	//Unit[,] unitsTable;
 	//Unit cueUnit;
-    static float offX;
-    static float offY;
     static Vector2Int lastTileCoord;
     static Vector2Int nextTileCoord;
 
 
-    public static void ApplyOffset (Unit u)
-	{
-		//unitsTable = table;
-		Transform board = u.transform.parent;
-		offX = board.position.x;
-		offY = board.position.y;
-	}
-
-    public static void ReadyForDrag (Unit u)
+    public static void RegisterDragStartCoord (int column, int row)
 	{
 		//cueUnit = u;
-		lastTileCoord = new Vector2Int (u.CurrentColumn, u.CurrentRow);
+		lastTileCoord = new Vector2Int (column, row);
 	}
 
-    public static void dragMove (Vector3 pos)
+    public static void dragMove (float posX, float posY)
 	{
-		nextTileCoord = convertPosToTableCoord (pos);
+		nextTileCoord = convertPosToTableCoord (posX, posY);
 //		print (nextTileCoord - lastTileCoord);
 		Vector2Int distance = nextTileCoord - lastTileCoord;
 		if (Mathf.Abs (distance.x) > 0 || Mathf.Abs (distance.y) > 0) {
@@ -39,17 +29,14 @@ public static class DragDrop
 		}
 	}
 
-    static Vector2Int convertPosToTableCoord (Vector3 pos)
+    static Vector2Int convertPosToTableCoord (float tempX, float tempY)
 	{
-		float tempX = pos.x - offX;
-		float tempY = pos.y - offY;
 		int tempColumn = Mathf.RoundToInt (tempX);
 		int tempRow = Mathf.RoundToInt (tempY);
 		Vector2Int tempCoord = new Vector2Int (tempColumn, tempRow);
 		return tempCoord;
 	}
 	
-	//	// Update is called once per frame
 	//	void Update ()
 	//	{
 	//		if (Input.GetKeyDown (KeyCode.S)) {
