@@ -20,7 +20,7 @@ public class UnitsManager : MonoBehaviour
 
 	Unit[,] unitsTable;
 
-	public void init ()
+	public void InitBoard ()
 	{
 		blockCtr = GetComponent<Block> ();
 		boardMatch = GetComponent<BoardMatch> ();
@@ -41,12 +41,40 @@ public class UnitsManager : MonoBehaviour
 				tempObj.transform.SetParent (unitsHolder, false);
 
 				tempUnit = tempObj.GetComponent<Unit> ();
-				tempUnit.initUnit (c, r, allTypes);
+                tempUnit.InitNormalUnit (c, r, allTypes);
 
 				unitsTable [c, r] = tempUnit;
 			}
 		}
 	}
+
+    public void createUnits__FromLayout(string[,] boardLayout)
+    {
+        int column = boardLayout.GetLength(0);
+        int row = boardLayout.GetLength(1);
+        unitsTable = new Unit[column, row];
+
+        /*create units table, from bottom left, to top right, column after column.*/
+        for (int c = 0; c < column; c++)
+        {
+            for (int r = 0; r < row; r++)
+            {
+                if (boardLayout[c, r] == null){
+                    GameObject tempObj = Instantiate(unitPrefab, new Vector3(c, r, 0), Quaternion.identity) as GameObject;
+                    tempObj.transform.SetParent(unitsHolder, false);
+
+                    tempUnit = tempObj.GetComponent<Unit>();
+                    tempUnit.InitNormalUnit(c, r, allTypes);
+
+                    unitsTable[c, r] = tempUnit;
+                }else{
+                    if(boardLayout[c, r].Contains(SpecialType.Empty.ToString())){
+                        
+                    }
+                }
+            }
+        }
+    }
 
 	public void repositionUnitsHolder (float x, float y, float z)
 	{

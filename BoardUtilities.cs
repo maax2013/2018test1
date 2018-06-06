@@ -10,8 +10,8 @@ public static class BoardUtilities
 
 		int tempColumn = u1.CurrentColumn;
 		int tempRow = u1.CurrentRow;
-		u1.setUnitCoord (u2.CurrentColumn, u2.CurrentRow);
-		u2.setUnitCoord (tempColumn, tempRow);
+		u1.SetUnitCoord (u2.CurrentColumn, u2.CurrentRow);
+		u2.SetUnitCoord (tempColumn, tempRow);
 	}
 
 	public static void remove_UnitsInSmallList_FromLargeList (List<Unit> smallL, List<Unit> largeL)
@@ -86,6 +86,7 @@ public static class BoardUtilities
 
 	public static bool hasSameID (Unit u1, Unit u2)
 	{
+        //TODO: bai da ID
         if (u1.GetUnitID() == u2.GetUnitID()) {
 			return true;
 		} else {

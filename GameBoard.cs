@@ -2,17 +2,17 @@
 //using System.Collections.Generic;
 using UnityEngine;
 
-public class MainGame : MonoBehaviour
+public class GameBoard : MonoBehaviour
 {
 	[SerializeField] CountDownTimeBar cdTimer;
-	[SerializeField] int boardColumns = 7;
-	[SerializeField] int boardRows = 8;
+    int boardColumns, boardRows;
 	float boardOffX, boardOffY;
 
 	UnitsManager unitsManager;
 	BoardBg boardBgCtr;
     string[,] boardLayout;
     string[,] blueprint;
+    //TODO: make blueprint a interface or subclass
 
 	// Use this for initialization
 	void Start ()
@@ -52,9 +52,9 @@ public class MainGame : MonoBehaviour
 	{
 		boardBgCtr = GetComponent<BoardBg> ();
         //boardBgCtr.createBoardTiles_ByRowColumn (boardColumns, boardRows);
-        boardBgCtr.createBoardTiles_FromLayout_andBlueprint(boardLayout, blueprint);
+        boardBgCtr.CreateBoardTiles_FromLayout_andBlueprint(boardLayout, blueprint);
 
-		boardBgCtr.repositionBoard (-boardOffX, -boardOffY, 2f);
+		boardBgCtr.RepositionBgHolder (-boardOffX, -boardOffY, 2f);
 
         //boardBgCtr.applyBlueprint(blueprint);
 	}
@@ -62,8 +62,9 @@ public class MainGame : MonoBehaviour
 	void InitUnits ()
 	{
 		unitsManager = GetComponent<UnitsManager> ();
-		unitsManager.init ();
-		unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
+		unitsManager.InitBoard ();
+        unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
+        //unitsManager.createUnits__FromLayout(boardLayout);
 
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);

@@ -19,10 +19,10 @@ public class UnitType
 		updateTypeInfo ();
 	}
 
-	public GemType getCurrentType ()
-	{
-		return currentType;
-	}
+	//public GemType getCurrentType ()
+	//{
+	//	return currentType;
+	//}
 
 	public string getCurrentTypeID ()
 	{

@@ -1,4 +1,10 @@
-﻿public enum GemType
+﻿public enum UnitTypeEnum{
+    Empty,
+    Upgradable,
+    Coin,
+    Special
+}
+public enum GemType
 {
 	Sapphire,
 	Emerald,
@@ -6,7 +12,9 @@
 	Citrine,
 	Amethyst,
 	Diamond,
-	Gold
+	Gold,
+    Silver,
+    Special
 }
 
 public enum GemTier

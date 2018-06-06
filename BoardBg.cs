@@ -13,7 +13,7 @@ public class BoardBg : MonoBehaviour
 
 	GameObject tempTileBG;
 
-    public void createBoardTiles_FromLayout_andBlueprint(string[,] boardLayout, string[,] blueprint)
+    public void CreateBoardTiles_FromLayout_andBlueprint(string[,] boardLayout, string[,] blueprint)
     {
         for (int c = 0; c < boardLayout.GetLength(0); c++)
         {
@@ -40,7 +40,7 @@ public class BoardBg : MonoBehaviour
         }
     }
 
-	public void repositionBoard (float x, float y, float z)
+	public void RepositionBgHolder (float x, float y, float z)
 	{
 		tileBgHolder.position = new Vector3 (x, y, z);
 	}

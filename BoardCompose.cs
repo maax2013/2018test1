@@ -28,11 +28,15 @@ public static class BoardCompose
         {
             for (int r = 0; r < row; r++)
             {
-                if(table[c,r].GetUnitID() != bp[c,r] && bp[c,r] != null){
+                bool isSocket = bp[c, r] != null;
+                bool isNotMatch_WithBlueprint = table[c, r].GetUnitID() != bp[c, r];
+                if(isSocket && isNotMatch_WithBlueprint){
                     return false;
                 }
+                //otherwise means the unit on socket matches with blueprint, pass
             }
         }
+        //if all passes, then success
         return true;
     }
 }

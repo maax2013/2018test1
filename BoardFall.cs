@@ -51,8 +51,8 @@ public class BoardFall : MonoBehaviour
 				} else if (firstEmpty.HasValue && unitsTable [x, y] != null) {
 					Unit fallingU = unitsTable [x, y];
 					/*mark Falling Unit Start and End position Coords, for animation later*/
-					fallingU.fallFrom = new Vector2Int (x, y);
-					fallingU.fallTo = new Vector2Int (x, firstEmpty.Value);
+					fallingU.FallFrom = new Vector2Int (x, y);
+					fallingU.FallTo = new Vector2Int (x, firstEmpty.Value);
 
 					readyToFallUnitsInColumn.Add (fallingU);
 	
@@ -101,8 +101,8 @@ public class BoardFall : MonoBehaviour
 				/*new skyfall unit start from the very top of the board, then up*/
 				skyfall_y = boardHeight + skyfallStack;
 				/*mark Falling Unit Start and End position Coords, for animation later*/
-				tempU.fallFrom = new Vector2Int (fallingColumn, skyfall_y);
-				tempU.fallTo = new Vector2Int (fallingColumn, skyfall_y - emptyCellsInColumn);
+				tempU.FallFrom = new Vector2Int (fallingColumn, skyfall_y);
+				tempU.FallTo = new Vector2Int (fallingColumn, skyfall_y - emptyCellsInColumn);
 
                 columnGroups [n].Add (tempU);
 				skyfallStack++;

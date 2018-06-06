@@ -177,9 +177,19 @@ public class BoardMatch : MonoBehaviour
 		float popTime = duration * 0.5f;
 
 		foreach (var u in otherUnits) {
-			u.onMergeDone -= checkTotalCompletions;
-			u.onMergeDone += checkTotalCompletions;
-			u.mergeTo_overTime_thenGone (targetU.transform.localPosition, mergeTime);
+            if(u.UMerge){
+                //u.UMerge.OnMergeDone -= checkTotalCompletions;
+                u.UMerge.OnMergeDone += checkTotalCompletions;
+                //u.UMerge.OnMergeDone -= u.HandleOnMergeDone;
+                u.UMerge.OnMergeDone += u.HandleOnMergeDone;
+                u.UMerge.mergeTo_overTime_thenGone(targetU.transform.localPosition, mergeTime);
+            }else
+            {
+                throw new System.Exception("can't find UnitMerge component");
+            }
+			//u.onMergeDone -= checkTotalCompletions;
+			//u.onMergeDone += checkTotalCompletions;
+			//u.mergeTo_overTime_thenGone (targetU.transform.localPosition, mergeTime);
 		}
 		/*since the first unit in blockUnits is the one at the bottom left, so the position of the block will be its x + half with, y + half height*/
 		Vector3 bottomLeftU = blockUnits [0].transform.localPosition;
@@ -191,9 +201,18 @@ public class BoardMatch : MonoBehaviour
 
 		targetU.upgrade (1);
 		//		targetU.testMark (true);//----------------------------
-		targetU.onMergeDone -= checkTotalCompletions;
-		targetU.onMergeDone += checkTotalCompletions;
-		targetU.popSprite_overTime (popTime);
+        if(targetU.UMerge){
+            //targetU.UMerge.OnPopDone -= checkTotalCompletions;
+            targetU.UMerge.OnPopDone += checkTotalCompletions;
+            //targetU.UMerge.OnPopDone -= targetU.HandleOnPopDone;
+            targetU.UMerge.OnPopDone += targetU.HandleOnPopDone;
+            targetU.UMerge.popSprite_overTime(popTime);
+        }else{
+            throw new System.Exception("can't find UnitMerge component");
+        }
+		//targetU.onMergeDone -= checkTotalCompletions;
+		//targetU.onMergeDone += checkTotalCompletions;
+		//targetU.popSprite_overTime (popTime);
 
 		//		yield return new WaitForSeconds (popTime + Time.deltaTime);
 		while (totalCompletions < totalUnitsToAnimate) {

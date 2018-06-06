@@ -14,8 +14,18 @@ public class BoardSwapUnits : MonoBehaviour
     public void init(Unit[,] table){
         unitsTable = table;
         inputCtr = GetComponent<InputControl_board>();
-        inputCtr.createBoardBoundary(unitsTable.GetLength(0), unitsTable.GetLength(1), unitsTable[0,0].transform.position.z);
-        DragDrop.ApplyOffset(unitsTable);
+        Unit tempU = GetFirstValidUnit_onTable(table);
+        inputCtr.createBoardBoundary(unitsTable.GetLength(0), unitsTable.GetLength(1), tempU.transform.position.z);
+        DragDrop.ApplyOffset(tempU);
+    }
+    Unit GetFirstValidUnit_onTable(Unit[,] table){
+        foreach (var u in table)
+        {
+            if(u != null){
+                return u;
+            }
+        }
+        throw new System.Exception("can't find a single valid unit on table");
     }
 
     public void passCDTimer(CountDownTimeBar cdT){
@@ -55,7 +65,7 @@ public class BoardSwapUnits : MonoBehaviour
         }
     }
     void handleOnDragging(Vector3 pos){
-        cueUnit.transform.position = pos + new Vector3(0f, 0f, cueUnit.getUnitDragZ());
+        cueUnit.dragging(pos);
 
         DragDrop.OnMove -= startCDTimer;
         DragDrop.OnMove += startCDTimer;

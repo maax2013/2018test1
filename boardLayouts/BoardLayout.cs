@@ -4,7 +4,7 @@ using UnityEngine;
 public class BoardLayout : MonoBehaviour
 {
     protected string __ = null;
-    protected string XX = SpecialType.Empty.ToString();
+    protected string XX = GemType.Special.ToString() + SpecialType.Empty.ToString();
     protected string[,] layout;
 
 

@@ -12,10 +12,10 @@ public static class DragDrop
     static Vector2Int nextTileCoord;
 
 
-    public static void ApplyOffset (Unit[,] table)
+    public static void ApplyOffset (Unit u)
 	{
 		//unitsTable = table;
-		Transform board = table [0, 0].transform.parent;
+		Transform board = u.transform.parent;
 		offX = board.position.x;
 		offY = board.position.y;
 	}
