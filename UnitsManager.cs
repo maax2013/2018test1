@@ -13,12 +13,12 @@ public class UnitsManager : MonoBehaviour
     BoardSwapUnits boardSwapUnits;
 	AllUnitTypes allTypes;
 
-	Unit tempUnit;
+	Unit_Base tempUnit;
 
 	Unit[] allUnitsOnBoard;
 	int tempUnitIndex;
 
-	Unit[,] unitsTable;
+    Unit_Base[,] unitsTable;
 
 	public void InitBoard ()
 	{
@@ -30,29 +30,29 @@ public class UnitsManager : MonoBehaviour
 	}
 
 
-	public void createUnits_ByRowColumn (int column, int row)
-	{
-		unitsTable = new Unit[column, row];
+	//public void createUnits_ByRowColumn (int column, int row)
+	//{
+	//	unitsTable = new Unit_Base[column, row];
 
-		/*create units table, from bottom left, to top right, column after column.*/
-		for (int c = 0; c < column; c++) {
-			for (int r = 0; r < row; r++) {
-				GameObject tempObj = Instantiate (unitPrefab, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
-				tempObj.transform.SetParent (unitsHolder, false);
+	//	/*create units table, from bottom left, to top right, column after column.*/
+	//	for (int c = 0; c < column; c++) {
+	//		for (int r = 0; r < row; r++) {
+	//			GameObject tempObj = Instantiate (unitPrefab, new Vector3 (c, r, 0), Quaternion.identity) as GameObject;
+	//			tempObj.transform.SetParent (unitsHolder, false);
 
-				tempUnit = tempObj.GetComponent<Unit> ();
-                tempUnit.InitNormalUnit (c, r, allTypes);
+	//			tempUnit = tempObj.GetComponent<Unit_Base> ();
+ //               tempUnit.InitNormalUnit (c, r, allTypes);
 
-				unitsTable [c, r] = tempUnit;
-			}
-		}
-	}
+	//			unitsTable [c, r] = tempUnit;
+	//		}
+	//	}
+	//}
 
     public void createUnits__FromLayout(string[,] boardLayout)
     {
         int column = boardLayout.GetLength(0);
         int row = boardLayout.GetLength(1);
-        unitsTable = new Unit[column, row];
+        unitsTable = new Unit_Base[column, row];
 
         /*create units table, from bottom left, to top right, column after column.*/
         for (int c = 0; c < column; c++)
@@ -63,8 +63,8 @@ public class UnitsManager : MonoBehaviour
                     GameObject tempObj = Instantiate(unitPrefab, new Vector3(c, r, 0), Quaternion.identity) as GameObject;
                     tempObj.transform.SetParent(unitsHolder, false);
 
-                    tempUnit = tempObj.GetComponent<Unit>();
-                    tempUnit.InitNormalUnit(c, r, allTypes);
+                    tempUnit = tempObj.GetComponent<Unit_Base>();
+                    //tempUnit.InitNormalUnit(c, r, allTypes);//++++++++++++++++++++++++
 
                     unitsTable[c, r] = tempUnit;
                 }else{
@@ -86,109 +86,107 @@ public class UnitsManager : MonoBehaviour
 		blockCtr.repositionBlocksHolder (x, y, z);
 	}
 
-	public void initBoardSwapUnits (CountDownTimeBar cdt)
-	{
-        boardSwapUnits.InitBoardSwap(unitsTable);
-		boardSwapUnits.passCDTimer(cdt);
-	}
-    public void passBlueprint(string[,] bp){
-        BoardCompose.SetBlueprint(bp);
-    }
+//	public void initBoardSwapUnits (CountDownTimeBar cdt)
+//	{
+//        boardSwapUnits.InitBoardSwap(unitsTable);
+//		boardSwapUnits.passCDTimer(cdt);
+//	}
+//    public void passBlueprint(string[,] bp){
+//        BoardCompose.SetBlueprint(bp);
+//    }
 
-    //public void addEtraSwappingTime(float t){
-    //    boardSwapUnits.addTempEtraSwappingTime(t);
-    //}
-
-
-
-
-
-
-	public void switch_GUITouchable (bool on)
-	{
-        //TODO: GUI touchable
-	}
-
-    public void enableBoardDragging(){
-        boardSwapUnits.onAllSwapsDone -= handleOnAllSwapsDone;
-        boardSwapUnits.onAllSwapsDone += handleOnAllSwapsDone;
-        boardSwapUnits.enableDragging();
-    }
-    public void disableBoardDragging(){
-        boardSwapUnits.disableDragging();
-    }
-
-    void handleOnAllSwapsDone(){
-        collapseAll_matches_OnBoard();
-    }
+//    //public void addEtraSwappingTime(float t){
+//    //    boardSwapUnits.addTempEtraSwappingTime(t);
+//    //}
 
 
 
 
 
-	public void removeAll_match4s_OnBoard_beforeGameStart ()
-	{
-        disableBoardDragging ();
-		boardMatch.removeAll_match4s_OnBoard_beforeGameStart (unitsTable);
-		readyForInteraction ();
-	}
 
-	public void collapseAll_matches_OnBoard ()
-	{
-        disableBoardDragging ();
-		boardMatch.onAllMatchDone -= handleOnAllMatchDone;
-		boardMatch.onAllMatchDone += handleOnAllMatchDone;
+//	public void switch_GUITouchable (bool on)
+//	{
+//        //TODO: GUI touchable
+//	}
 
-		boardMatch.onNeedShowBlock -= handleOnNeedShowBlock;
-		boardMatch.onNeedShowBlock += handleOnNeedShowBlock;
+//    public void enableBoardDragging(){
+//        boardSwapUnits.onAllSwapsDone -= handleOnAllSwapsDone;
+//        boardSwapUnits.onAllSwapsDone += handleOnAllSwapsDone;
+//        boardSwapUnits.enableDragging();
+//    }
+//    public void disableBoardDragging(){
+//        boardSwapUnits.disableDragging();
+//    }
 
-		boardMatch.onNeedBoardFall -= handleOnNeedBoardFall;
-		boardMatch.onNeedBoardFall += handleOnNeedBoardFall;
+//    void handleOnAllSwapsDone(){
+//        collapseAll_matches_OnBoard();
+//    }
 
-		boardMatch.collapseAll_matches_OnBoard (unitsTable);
-	}
 
-	void handleOnAllMatchDone (Unit[,] updatedTable)
-	{
-		unitsTable = updatedTable;
-		//		debugBoard ();
-        if(BoardCompose.CompositionDone_onBoard(unitsTable)){
-            //TODO: level complete
-            Debug.Log("levle complete!!!!!");
-        }else{
-            readyForInteraction();
-        }
+
+
+
+//	public void removeAll_match4s_OnBoard_beforeGameStart ()
+//	{
+//        disableBoardDragging ();
+//		boardMatch.removeAll_match4s_OnBoard_beforeGameStart (unitsTable);
+//		readyForInteraction ();
+//	}
+
+//	public void collapseAll_matches_OnBoard ()
+//	{
+//        disableBoardDragging ();
+//		boardMatch.onAllMatchDone -= handleOnAllMatchDone;
+//		boardMatch.onAllMatchDone += handleOnAllMatchDone;
+
+//		boardMatch.onNeedShowBlock -= handleOnNeedShowBlock;
+//		boardMatch.onNeedShowBlock += handleOnNeedShowBlock;
+
+//		boardMatch.onNeedBoardFall -= handleOnNeedBoardFall;
+//		boardMatch.onNeedBoardFall += handleOnNeedBoardFall;
+
+//		boardMatch.collapseAll_matches_OnBoard (unitsTable);
+//	}
+
+//	void handleOnAllMatchDone (Unit[,] updatedTable)
+//	{
+//		unitsTable = updatedTable;
+//		//		debugBoard ();
+//        if(BoardCompose.CompositionDone_onBoard(unitsTable)){
+//            //TODO: level complete
+//            Debug.Log("levle complete!!!!!");
+//        }else{
+//            readyForInteraction();
+//        }
 		
-	}
+//	}
 
-	void handleOnNeedBoardFall (Unit[,] updatedTable)
-	{
-		unitsTable = updatedTable;
-		//		debugBoard ();
-		boardFall.onAllFallDone -= handleOnAllFallDone;
-		boardFall.onAllFallDone += handleOnAllFallDone;
-		boardFall.fall (unitsTable);
-	}
+//	void handleOnNeedBoardFall (Unit[,] updatedTable)
+//	{
+//		unitsTable = updatedTable;
+//		//		debugBoard ();
+//		boardFall.onAllFallDone -= handleOnAllFallDone;
+//		boardFall.onAllFallDone += handleOnAllFallDone;
+//		boardFall.fall (unitsTable);
+//	}
 
-	void handleOnAllFallDone (Unit[,] updatedTable)
-	{
-		unitsTable = updatedTable;
-		//		debugBoard ();
-		boardMatch.collapseAll_matches_OnBoard (unitsTable);
-	}
+//	void handleOnAllFallDone (Unit[,] updatedTable)
+//	{
+//		unitsTable = updatedTable;
+//		//		debugBoard ();
+//		boardMatch.collapseAll_matches_OnBoard (unitsTable);
+//	}
 
-	void handleOnNeedShowBlock (Vector3 targetP, float duration)
-	{
-		blockCtr.showBlockAt_overTime (targetP, duration);
-	}
+//	void handleOnNeedShowBlock (Vector3 targetP, float duration)
+//	{
+//		blockCtr.showBlockAt_overTime (targetP, duration);
+//	}
 
-	void readyForInteraction ()
-	{
-//		print ("ready!");
-        enableBoardDragging ();
-	}
-
-
+//	void readyForInteraction ()
+//	{
+////		print ("ready!");
+//        enableBoardDragging ();
+//	}
 
 
 
@@ -199,49 +197,44 @@ public class UnitsManager : MonoBehaviour
 
 
 
-	void OnGUI ()
-	{
-		if (GUI.Button (new Rect (0, 0, 200, 55), "test")) {
-			stepCheck ();
-		}
-	}
 
-	void stepCheck ()
-	{
-//			checkConnections_ToRightAndTop (allUnitsOnBoard [tempUnitIndex]);
-//			tempUnitIndex++;
 
-//		unitsToCheck [0].testMark (true);
-//		get_LinkedUnitsGroup_of (unitsToCheck [0]);
-		//collapseAll_matches_OnBoard ();
-        if (Time.timeScale > 0f)
-        {
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            Time.timeScale = 1f;
-        }
-	}
+//	void OnGUI ()
+//	{
+//		if (GUI.Button (new Rect (0, 0, 200, 55), "test")) {
+//			stepCheck ();
+//		}
+//	}
 
-	void debugBoard ()
-	{
-		for (int c = 0; c < unitsTable.GetLength (0); c++) {
-			for (int r = 0; r < unitsTable.GetLength (1); r++) {
-//				unitsTable [c, r].debugText (c.ToString () + ":" + r.ToString ());
-				//				unitsTable [c, r].showDebugCoord();
-				unitsTable [c, r].debugText (unitsTable [c, r].BelongingBlocks.ToString ());
-			}
-		}
-	}
+//	void stepCheck ()
+//	{
+////			checkConnections_ToRightAndTop (allUnitsOnBoard [tempUnitIndex]);
+////			tempUnitIndex++;
+
+////		unitsToCheck [0].testMark (true);
+////		get_LinkedUnitsGroup_of (unitsToCheck [0]);
+//		//collapseAll_matches_OnBoard ();
+//        if (Time.timeScale > 0f)
+//        {
+//            Time.timeScale = 0f;
+//        }
+//        else
+//        {
+//            Time.timeScale = 1f;
+//        }
+//	}
+
+//	void debugBoard ()
+//	{
+//		for (int c = 0; c < unitsTable.GetLength (0); c++) {
+//			for (int r = 0; r < unitsTable.GetLength (1); r++) {
+////				unitsTable [c, r].debugText (c.ToString () + ":" + r.ToString ());
+	//			//				unitsTable [c, r].showDebugCoord();
+	//			unitsTable [c, r].debugText (unitsTable [c, r].BelongingBlocks.ToString ());
+	//		}
+	//	}
+	//}
 	
 
 
-
-	
-	// Update is called once per frame
-	void Update ()
-	{
-		
-	}
 }

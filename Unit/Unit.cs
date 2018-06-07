@@ -40,9 +40,6 @@ public class Unit : Unit_Base
 
 	public void InitNormalUnit (int column, int row, AllUnitTypes uTypes)
 	{
-        UMerge = GetComponent<UnitMerge>();
-        UDragDrop = GetComponent<UnitDragDrop>();
-
 //		TotalConnectedUnits = 1;
 		blockGroup = new List<Unit> ();
 		BelongingBlocks = 0;
@@ -149,16 +146,16 @@ public class Unit : Unit_Base
 
 
 
-	public void upgrade (int levels)
-	{
-		if (CurrentUnitType.isUpgradable ()) {
-			CurrentUnitType.upgradeToNextTier ();
-			UpdateUnitSprite ();
-		} else {
-			//TODO: what to do when reach max tier
-		}
+	//public void upgrade (int levels)
+	//{
+	//	if (CurrentUnitType.isUpgradable ()) {
+	//		CurrentUnitType.upgradeToNextTier ();
+	//		UpdateUnitSprite ();
+	//	} else {
+	//		//TODO: what to do when reach max tier
+	//	}
 
-	}
+	//}
 
 	public void jump_overTime_thenGone (float jumpTime)
 	{

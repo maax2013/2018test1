@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public class UnitDragDrop : Component
+public class UnitDragDrop : MonoBehaviour
 {
     public Unit_Base thisUnit;
 
     const float dragZ = -0.5f;
 
-    void Awake(){
-        Debug.Log("im awake");
-    }
+    //void Awake(){
+    //    Debug.Log("im awake");
+    //}
 
     public void startDrag()
     {

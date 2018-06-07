@@ -17,16 +17,19 @@ public class Unit_Base : MonoBehaviour
     //public bool CanMerge { get; protected set; }
     //public bool CanSwap { get; protected set; }
 
+    public UnitUpgrade UUpgrade { get; protected set; }
     public UnitMerge UMerge { get; protected set; }
     public UnitDragDrop UDragDrop { get; protected set; }
-    void Awake()
-    {
-        Debug.Log("im awake");
-    }
+ //   void Awake()
+ //   {
+ //       Debug.Log("im awake");
+ //   }
 
 	void Start()
 	{
-        Debug.Log("im start");
+        UUpgrade = GetComponent<UnitUpgrade>();
+        UMerge = GetComponent<UnitMerge>();
+        UDragDrop = GetComponent<UnitDragDrop>();
 	}
 
 	public void SetUnitCoord (int column, int row)

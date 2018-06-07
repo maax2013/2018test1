@@ -63,18 +63,19 @@ public class GameBoard : MonoBehaviour
 	{
 		unitsManager = GetComponent<UnitsManager> ();
 		unitsManager.InitBoard ();
-        unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
-        //unitsManager.createUnits__FromLayout(boardLayout);
+        //unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
+        unitsManager.createUnits__FromLayout(boardLayout);
 
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
-        unitsManager.initBoardSwapUnits (cdTimer);
-        unitsManager.passBlueprint(blueprint);
 
-//		unitsManager.collapseAll_matches_OnBoard ();
-		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();
-//		unitsManager.markAll_linkedUnitsGroups ();
-		//		unitsManager.checkMatch4s_OnBoard ();
+//        unitsManager.initBoardSwapUnits (cdTimer);
+//        unitsManager.passBlueprint(blueprint);
+
+////		unitsManager.collapseAll_matches_OnBoard ();
+//		unitsManager.removeAll_match4s_OnBoard_beforeGameStart ();
+////		unitsManager.markAll_linkedUnitsGroups ();
+		////		unitsManager.checkMatch4s_OnBoard ();
 	}
 
 	// Update is called once per frame

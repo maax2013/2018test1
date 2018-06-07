@@ -4,10 +4,10 @@ using System.Collections;
 public class UnitMerge : MonoBehaviour
 {
     public event System.Action OnMergeDone;
-    public event System.Action OnPopDone;
+    //public event System.Action OnPopDone;
 
     Coroutine moveCoroutine;
-    Coroutine popCoroutine;
+    //Coroutine popCoroutine;
 
     public void mergeTo_overTime(Vector3 target, float mergeTime)
     {
@@ -18,10 +18,10 @@ public class UnitMerge : MonoBehaviour
         moveCoroutine = StartCoroutine(mergeToOverTime(target, mergeTime));
     }
 
-    public void popSprite_overTime(float popTime)
-    {
-        popCoroutine = StartCoroutine(popSpriteOverTime(popTime));
-    }
+    //public void popSprite_overTime(float popTime)
+    //{
+    //    popCoroutine = StartCoroutine(popSpriteOverTime(popTime));
+    //}
 
     IEnumerator mergeToOverTime(Vector3 target, float duration)
     {
@@ -42,40 +42,40 @@ public class UnitMerge : MonoBehaviour
         }
     }
 
-    IEnumerator popSpriteOverTime(float duration)
-    {
-        Vector3 target = new Vector3(1.3f, 1.3f, 1f);//~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        float elapsedTime = 0;
+    //IEnumerator popSpriteOverTime(float duration)
+    //{
+    //    Vector3 target = new Vector3(1.3f, 1.3f, 1f);//~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //    float elapsedTime = 0;
 
-        float popUpTime = duration * 0.2f;
-        float pauseTime = duration * 0.3f;
-        float shrinkTime = duration * 0.5f;
+    //    float popUpTime = duration * 0.2f;
+    //    float pauseTime = duration * 0.3f;
+    //    float shrinkTime = duration * 0.5f;
 
-        Vector3 startingScale = transform.localScale;
+    //    Vector3 startingScale = transform.localScale;
 
-        while (elapsedTime < popUpTime)
-        {
-            transform.localScale = Vector3.Lerp(startingScale, target, (elapsedTime / popUpTime));
-            elapsedTime += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
-        transform.localScale = target;
+    //    while (elapsedTime < popUpTime)
+    //    {
+    //        transform.localScale = Vector3.Lerp(startingScale, target, (elapsedTime / popUpTime));
+    //        elapsedTime += Time.deltaTime;
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //    transform.localScale = target;
 
-        yield return new WaitForSeconds(pauseTime);
+    //    yield return new WaitForSeconds(pauseTime);
 
-        elapsedTime = 0;
-        while (elapsedTime < shrinkTime)
-        {
-            transform.localScale = Vector3.Lerp(target, startingScale, (elapsedTime / shrinkTime));
-            elapsedTime += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
-        transform.localScale = startingScale;
+    //    elapsedTime = 0;
+    //    while (elapsedTime < shrinkTime)
+    //    {
+    //        transform.localScale = Vector3.Lerp(target, startingScale, (elapsedTime / shrinkTime));
+    //        elapsedTime += Time.deltaTime;
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //    transform.localScale = startingScale;
 
-        if (OnPopDone != null)
-        {
-            OnPopDone();
-            OnPopDone = null;
-        }
-    }
+    //    if (OnPopDone != null)
+    //    {
+    //        OnPopDone();
+    //        OnPopDone = null;
+    //    }
+    //}
 }

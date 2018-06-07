@@ -6,6 +6,20 @@ public class UnitUpgrade : MonoBehaviour
     public event System.Action OnPopDone;
     Coroutine popCoroutine;
 
+    public void upgrade()
+    {
+        //if (CurrentUnitType.isUpgradable())
+        //{
+        //    CurrentUnitType.upgradeToNextTier();
+        //    UpdateUnitSprite();
+        //}
+        //else
+        //{
+        //    //TODO: what to do when reach max tier
+        //}
+
+    }
+
     public void popSprite_overTime(float popTime)
     {
         popCoroutine = StartCoroutine(popSpriteTo_overTime(popTime));

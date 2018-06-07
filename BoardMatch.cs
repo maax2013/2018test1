@@ -199,20 +199,19 @@ public class BoardMatch : MonoBehaviour
 
 		yield return new WaitForSeconds (mergeTime);
 
-		targetU.upgrade (1);
-		//		targetU.testMark (true);//----------------------------
-        if(targetU.UMerge){
+        if(targetU.UUpgrade){
+            targetU.UUpgrade.upgrade();
+            targetU.testMark(true);//----------------------------
+
             //targetU.UMerge.OnPopDone -= checkTotalCompletions;
-            targetU.UMerge.OnPopDone += checkTotalCompletions;
+            targetU.UUpgrade.OnPopDone += checkTotalCompletions;
             //targetU.UMerge.OnPopDone -= targetU.HandleOnPopDone;
-            targetU.UMerge.OnPopDone += targetU.HandleOnPopDone;
-            targetU.UMerge.popSprite_overTime(popTime);
-        }else{
-            throw new System.Exception("can't find UnitMerge component");
+            targetU.UUpgrade.OnPopDone += targetU.HandleOnPopDone;
+            targetU.UUpgrade.popSprite_overTime(popTime);
+        }else
+        {
+            throw new System.Exception("can't find UnitUpgrade component");
         }
-		//targetU.onMergeDone -= checkTotalCompletions;
-		//targetU.onMergeDone += checkTotalCompletions;
-		//targetU.popSprite_overTime (popTime);
 
 		//		yield return new WaitForSeconds (popTime + Time.deltaTime);
 		while (totalCompletions < totalUnitsToAnimate) {
