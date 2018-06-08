@@ -48,11 +48,12 @@ public class UnitsManager : MonoBehaviour
 	//	}
 	//}
 
-    public void createUnits__FromLayout(string[,] boardLayout)
+    public void createUnits__FromLayout(GameObject[,] boardLayout)
     {
         int column = boardLayout.GetLength(0);
         int row = boardLayout.GetLength(1);
         unitsTable = new Unit_Base[column, row];
+        GameObject tempObj;
 
         /*create units table, from bottom left, to top right, column after column.*/
         for (int c = 0; c < column; c++)
@@ -60,18 +61,18 @@ public class UnitsManager : MonoBehaviour
             for (int r = 0; r < row; r++)
             {
                 if (boardLayout[c, r] == null){
-                    GameObject tempObj = Instantiate(unitPrefab, new Vector3(c, r, 0), Quaternion.identity) as GameObject;
-                    tempObj.transform.SetParent(unitsHolder, false);
+                    tempObj = Instantiate(unitPrefab, new Vector3(c, r, 0), Quaternion.identity) as GameObject;
+                    //tempObj.transform.SetParent(unitsHolder, false);
 
                     tempUnit = tempObj.GetComponent<Unit_Base>();
                     //tempUnit.InitNormalUnit(c, r, allTypes);//++++++++++++++++++++++++
 
-                    unitsTable[c, r] = tempUnit;
+                    //unitsTable[c, r] = tempUnit;
                 }else{
-                    if(boardLayout[c, r].Contains(SpecialType.Empty.ToString())){
-                        
-                    }
+                    tempObj = Instantiate(boardLayout[c,r], new Vector3(c, r, 0), Quaternion.identity) as GameObject;
                 }
+                tempObj.transform.SetParent(unitsHolder, false);
+                unitsTable[c, r] = tempUnit;
             }
         }
     }

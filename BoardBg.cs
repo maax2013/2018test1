@@ -13,7 +13,7 @@ public class BoardBg : MonoBehaviour
 
 	GameObject tempTileBG;
 
-    public void CreateBoardTiles_FromLayout_andBlueprint(string[,] boardLayout, string[,] blueprint)
+    public void CreateBoardTiles_FromLayout_andBlueprint(GameObject[,] boardLayout, string[,] blueprint)
     {
         for (int c = 0; c < boardLayout.GetLength(0); c++)
         {
@@ -31,11 +31,11 @@ public class BoardBg : MonoBehaviour
                     }
                     tempTileBG.transform.SetParent(tileBgHolder, false);
                 }
-                if(blueprint[c,r]!= null){
-                    tempTileBG = Instantiate(cellBgPrefab, new Vector3(c, r, 0), Quaternion.identity) as GameObject;
-                    tempTileBG.GetComponent<SpriteRenderer>().sprite = sprites[2];
-                    tempTileBG.transform.SetParent(tileSocketHolder, false);
-                }
+                //if(blueprint[c,r]!= null){
+                //    tempTileBG = Instantiate(cellBgPrefab, new Vector3(c, r, 0), Quaternion.identity) as GameObject;
+                //    tempTileBG.GetComponent<SpriteRenderer>().sprite = sprites[2];
+                //    tempTileBG.transform.SetParent(tileSocketHolder, false);
+                //}
             }
         }
     }

@@ -3,8 +3,8 @@ using System.Collections;
 
 public class Unit_Base : MonoBehaviour
 {
-    [SerializeField] GameObject textObj;
-    [SerializeField] GameObject glowObj;
+    //[SerializeField] GameObject textObj;
+    GameObject glowObj;
 
     public int CurrentRow { get; protected set; }
     public int CurrentColumn { get; protected set; }
@@ -30,7 +30,10 @@ public class Unit_Base : MonoBehaviour
         UUpgrade = GetComponent<UnitUpgrade>();
         UMerge = GetComponent<UnitMerge>();
         UDragDrop = GetComponent<UnitDragDrop>();
+
+        //StartDebugging();
 	}
+
 
 	public void SetUnitCoord (int column, int row)
     {
@@ -40,9 +43,21 @@ public class Unit_Base : MonoBehaviour
 
 
 
+    bool isDebugging;
+    TextMesh testText;
+    MeshRenderer testTextRenderer;
 
+    public void StartDebugging()
+    {
+        isDebugging = true;
 
-
+        testText = gameObject.AddComponent<TextMesh>() as TextMesh;
+        testTextRenderer = GetComponent<MeshRenderer>();
+        testText.characterSize = 0.2f;
+        testText.offsetZ = -0.5f;
+        testTextRenderer.enabled = false;
+        //debugText("test");
+    }
     public void testMark(bool on)
     {
         glowObj.SetActive(on);
@@ -50,8 +65,10 @@ public class Unit_Base : MonoBehaviour
 
     public void debugText(string t)
     {
-        textObj.SetActive(true);
-        textObj.GetComponent<TextMesh>().text = t;
+        //textObj.SetActive(true);
+        //textObj.GetComponent<TextMesh>().text = t;
+        testTextRenderer.enabled = true;
+        testText.text = t;
     }
 
     public void showDebugCoord()

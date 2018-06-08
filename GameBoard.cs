@@ -10,49 +10,53 @@ public class GameBoard : MonoBehaviour
 
 	UnitsManager unitsManager;
 	BoardBg boardBgCtr;
-    string[,] boardLayout;
+    BoardLayout boardLayout;
+    GameObject[,] boardLayoutBgs;
+    GameObject[,] boardLayoutUnits;
     string[,] blueprint;
     //TODO: make blueprint a interface or subclass
 
 	// Use this for initialization
 	void Start ()
 	{
-        boardLayout = GetComponent<BoardLayout>().GetBoardLayout();
-        boardColumns = boardLayout.GetLength(0);
-        boardRows = boardLayout.GetLength(1);
+        boardLayout = GetComponent<BoardLayout>();
+        boardLayout.initBoardLayout();
+        boardLayoutBgs = boardLayout.GetBoardLayoutBg();
+        boardColumns = boardLayoutBgs.GetLength(0);
+        boardRows = boardLayoutBgs.GetLength(1);
 		boardOffX = (boardColumns - 1) / 2f;
 		boardOffY = (boardRows - 1) / 2f;
 
         blueprint = GetComponent<Blueprint>().getBlueprint();
-        ValidateBoardLayout_withBlueprint(boardLayout, blueprint);
+        //ValidateBoardLayout_withBlueprint(boardLayout, blueprint);
 
 		cdTimer.gameObject.transform.localPosition = new Vector3 (0f, boardOffY + 1f, 0f);
 		cdTimer.gameObject.SetActive (false);
 
 		InitBoardBG ();
-		InitUnits ();
+		//InitUnits ();
 	}
-    void ValidateBoardLayout_withBlueprint(string[,] layout, string[,] bp)
-    {
-        if (bp.GetLength(0) != boardColumns || bp.GetLength(1) != boardRows)
-            throw new System.Exception("blueprint has different size than the board layout");
-        for (int c = 0; c < boardColumns; c++)
-        {
-            for (int r = 0; r < boardRows; r++)
-            {
-                if (layout[c, r] == SpecialType.Empty.ToString() && bp[c, r] != null)
-                {
-                    throw new System.Exception("blueprint is invalid on this game board");
-                }
-            }
-        }
-    }
+    //void ValidateBoardLayout_withBlueprint(string[,] layout, string[,] bp)
+    //{
+    //    if (bp.GetLength(0) != boardColumns || bp.GetLength(1) != boardRows)
+    //        throw new System.Exception("blueprint has different size than the board layout");
+    //    for (int c = 0; c < boardColumns; c++)
+    //    {
+    //        for (int r = 0; r < boardRows; r++)
+    //        {
+    //            if (layout[c, r] == SpecialType.Empty.ToString() && bp[c, r] != null)
+    //            {
+    //                throw new System.Exception("blueprint is invalid on this game board");
+    //            }
+    //        }
+    //    }
+    //}
 
 	void InitBoardBG ()
 	{
 		boardBgCtr = GetComponent<BoardBg> ();
         //boardBgCtr.createBoardTiles_ByRowColumn (boardColumns, boardRows);
-        boardBgCtr.CreateBoardTiles_FromLayout_andBlueprint(boardLayout, blueprint);
+        boardBgCtr.CreateBoardTiles_FromLayout_andBlueprint(boardLayoutBgs, blueprint);
 
 		boardBgCtr.RepositionBgHolder (-boardOffX, -boardOffY, 2f);
 
@@ -64,7 +68,7 @@ public class GameBoard : MonoBehaviour
 		unitsManager = GetComponent<UnitsManager> ();
 		unitsManager.InitBoard ();
         //unitsManager.createUnits_ByRowColumn (boardColumns, boardRows);
-        unitsManager.createUnits__FromLayout(boardLayout);
+        //unitsManager.createUnits__FromLayout(boardLayout);
 
 		unitsManager.repositionBlocksHolder (-boardOffX, -boardOffY, 1f);
 		unitsManager.repositionUnitsHolder (-boardOffX, -boardOffY, 0f);
@@ -78,9 +82,4 @@ public class GameBoard : MonoBehaviour
 		////		unitsManager.checkMatch4s_OnBoard ();
 	}
 
-	// Update is called once per frame
-	void Update ()
-	{
-
-	}
 }
